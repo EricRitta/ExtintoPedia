@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgis/postgis:17-3.5-alpine
+    container_name: extintopedia-db
+    environment:
+      POSTGRES_USER: extinto
+      POSTGRES_PASSWORD: extinto_dev
+      POSTGRES_DB: extintopedia
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U extinto -d extintopedia"]
+      interval: 5s
+      retries: 10
+volumes:
+  pgdata:

@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>SALVE-API | Documentação dos Endpoints Públicos</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="shortcut icon" href="/salve-api/assets/favicon-38d8f16d3f9c2a8eddbb6fbb06463d96.ico" type="image/x-icon">
+        <link rel="icon" href="/salve-api/assets/favicon-38d8f16d3f9c2a8eddbb6fbb06463d96.ico" type="image/png">
+        <link rel="stylesheet" href="/salve-api/assets/application-bbc0bf61d80d746c9ac904b6925125c5.css"/>
+		
+    <meta name="layout" content="main"/>
+    
+    <style>
+        :root {
+            --green: #2e7d32;
+            --green-light: #e8f5e9;
+            --blue: #1565c0;
+            --blue-light: #e3f2fd;
+            --orange: #e65100;
+            --red: #c62828;
+            --gray: #546e7a;
+            --gray-light: #f5f5f5;
+            --border: #ddd;
+            --radius: 8px;
+        }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .doc-container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+        /* header */
+        .doc-header { background: linear-gradient(135deg, var(--green), #1b5e20); color: #fff; padding: 40px; border-radius: var(--radius); margin-bottom: 30px; }
+        .doc-header h1 { margin: 0 0 5px; font-size: 2rem; }
+        .doc-header .subtitle { opacity: .9; font-size: 1.1rem; }
+        .doc-header .base-url { display: inline-block; margin-top: 12px; background: rgba(255,255,255,.15); padding: 6px 14px; border-radius: 4px; font-family: monospace; font-size: .95rem; }
+
+        /* toc */
+        .toc { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 25px; margin-bottom: 30px; }
+        .toc h2 { margin: 0 0 10px; font-size: 1.1rem; color: var(--gray); }
+        .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 30px; }
+        .toc ol li { break-inside: avoid; margin-bottom: 4px; }
+        .toc a { color: var(--blue); text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+
+        /* sections */
+        section { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 25px; overflow: hidden; }
+        section > h2 { background: var(--gray-light); margin: 0; padding: 14px 20px; font-size: 1.15rem; border-bottom: 1px solid var(--border); color: var(--gray); }
+        section > h2 .count { background: var(--green); color: #fff; font-size: .8rem; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; vertical-align: middle; }
+        .section-body { padding: 15px 20px; }
+
+        /* endpoint card */
+        .endpoint { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; padding: 16px; background: #fff; transition: box-shadow .15s; }
+        .endpoint:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+        .endpoint:last-child { margin-bottom: 0; }
+        .ep-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+        .ep-method { display: inline-block; font-weight: 700; font-size: .75rem; padding: 3px 10px; border-radius: 4px; color: #fff; text-transform: uppercase; letter-spacing: .5px; }
+        .ep-method.get { background: var(--blue); }
+        .ep-url { font-family: 'Consolas', 'Courier New', monospace; font-size: .95rem; word-break: break-all; }
+        .ep-url .path-param { color: var(--orange); font-weight: 600; }
+        .ep-desc { color: var(--gray); font-size: .95rem; margin: 4px 0 8px; }
+        .ep-details { margin-top: 8px; }
+
+        .ep-details summary { cursor: pointer; color: var(--blue); font-size: .9rem; font-weight: 600; padding: 4px 0; }
+        .ep-details summary:hover { text-decoration: underline; }
+
+        /* tables */
+        table.params { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: .9rem; }
+        table.params th { background: var(--gray-light); text-align: left; padding: 6px 10px; border: 1px solid var(--border); font-weight: 600; }
+        table.params td { padding: 6px 10px; border: 1px solid var(--border); vertical-align: top; }
+        table.params .type { font-family: monospace; font-size: .85rem; background: #f0f0f0; padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
+        table.params .required { font-weight: 600; }
+        table.params .required.yes { color: var(--red); }
+        table.params .required.no { color: var(--gray); }
+        table.params .desc code { font-family: monospace; background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .85rem; }
+
+        /* code blocks */
+        pre { background: #1e1e2e; color: #cdd6f4; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-size: .85rem; line-height: 1.5; margin: 8px 0; }
+        pre .string { color: #a6e3a1; }
+        pre .key { color: #89b4fa; }
+        pre .number { color: #fab387; }
+        pre .null { color: #f38ba8; }
+        pre .comment { color: #6c7086; font-style: italic; }
+
+        .example-label { font-size: .8rem; color: var(--gray); margin-top: 10px; margin-bottom: 4px; font-weight: 600; }
+
+        /* general info */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .info-card { background: var(--gray-light); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); }
+        .info-card h3 { margin: 0 0 6px; font-size: .95rem; color: var(--gray); }
+        .info-card p, .info-card ul { margin: 0; font-size: .9rem; }
+        .info-card ul { padding-left: 18px; }
+        .info-card code { font-family: monospace; background: #e0e0e0; padding: 1px 5px; border-radius: 3px; font-size: .85rem; }
+
+        /* summary table */
+        .summary-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+        .summary-table th { background: var(--gray-light); text-align: left; padding: 8px 10px; border: 1px solid var(--border); font-weight: 600; }
+        .summary-table td { padding: 7px 10px; border: 1px solid var(--border); vertical-align: top; }
+        .summary-table tr:hover { background: #fafafa; }
+        .summary-table .ep-method { font-size: .7rem; padding: 2px 8px; }
+
+        /* responsive */
+        @media (max-width: 768px) {
+            .toc ol { columns: 1; }
+            .doc-header { padding: 25px 20px; }
+            .doc-header h1 { font-size: 1.5rem; }
+            section > h2 { font-size: 1rem; }
+            .ep-header { flex-direction: column; align-items: flex-start; }
+        }
+
+        /* highlight */
+        .highlight { background: #fffde7; border-left: 4px solid #f9a825; padding: 10px 14px; margin: 10px 0; border-radius: 0 4px 4px 0; font-size: .9rem; }
+        .highlight code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; }
+
+        /* scroll margin for anchor offset */
+        section[id] { scroll-margin-top: 20px; }
+    </style>
+
+	</head>
+	<body>
+		
+<div class="doc-container">
+
+    <!-- HEADER -->
+    <header class="doc-header">
+        <h1>SALVE-API | Documentação dos Endpoints Públicos ICMBio</h1>
+        <p class="subtitle">Sistema de Avaliação do Risco de Extinção da Biodiversidade</p>
+        <p><b>ICMBio - Instituto Chico Mendes de Conservação da Biodiversidade</b></p>
+        <span class="base-url">https://salve.icmbio.gov.br/salve-api/</span>
+        <p><code>v1.3.1u</code></p>
+    </header>
+
+    <!-- TABLE OF CONTENTS -->
+    <nav class="toc">
+        <h2>&#x1F4CB; Índice</h2>
+        <ol>
+            <li><a href="#intro">Informações Gerais</a></li>
+            <li><a href="#dashboard">Dashboard e Estatísticas</a></li>
+            <li><a href="#charts">Gráficos</a></li>
+            <li><a href="#team">Equipe e Instituições</a></li>
+            <li><a href="#media">Publicações e Mídia</a></li>
+            <li><a href="#species-media">Mídia da Espécie</a></li>
+            <li><a href="#species-sheet">Fichas das Espécies</a></li>
+            <li><a href="#search">Busca e Filtros</a></li>
+            <li><a href="#utilities">Utilitários</a></li>
+            <li><a href="#summary">Resumo dos Endpoints</a></li>
+        </ol>
+    </nav>
+
+    <!-- GENERAL INFO -->
+    <section id="intro">
+        <h2><span class="count">i</span> Informações Gerais</h2>
+        <div class="section-body">
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Base URL</h3>
+                    <p><code>https://salve.icmbio.gov.br/salve-api/</code></p>
+                </div>
+                <div class="info-card">
+                    <h3>Formato de Resposta</h3>
+                    <p>Todos os endpoints retornam <code>application/json</code> com a estrutura:</p>
+                    <pre>{
+  "msg"&thinsp;: "",
+  "status"&thinsp;: 200,
+  "data"&thinsp;: [],
+  "pagination"&thinsp;: {},
+  "remoteIP"&thinsp;: "...",
+  "url"&thinsp;: "...",
+  "baseUrl"&thinsp;: "..."
+}</pre>
+                </div>
+                <div class="info-card">
+                    <h3>Métodos HTTP</h3>
+                    <p>Todos os endpoints públicos utilizam apenas o método <strong>GET</strong>.</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Paginação</h3>
+                    <p>O endpoint <code>search</code> retorna paginação no campo <code>pagination</code> com os atributos: <code>paginationPageSize</code>, <code>paginationTotalRecords</code>, <code>paginationPageNumber</code>, <code>paginationTotalPages</code>, <code>paginationFirstRowNum</code>.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Cache</h3>
+                    <p>As consultas são cacheadas em disco por 60 minutos (padrão). É possível alterar com o parâmetro opcional <code>cacheMinutes</code>.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Controle de Acesso</h3>
+                    <p>Atualmente o acesso à API é <strong>público e irrestrito</strong>. Os acessos são registrados para auditoria.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Criptografia de IDs</h3>
+                    <p>IDs de fichas e imagens são transmitidos criptografados (AES) nas URLs e válidos apenas no mesmo dia em que foram gerados. Utilize os valores retornados pela API nas requisições subsequentes.</p>
+                </div>
+
+
+                <div class="info-card">
+                    <h3>Ficha HTML da Espécie</h3>
+                    <p><code>
+                    https://salve.icmbio.gov.br/#/?q={NOME DA ESPÉCIE}
+                    https://salve.icmbio.gov.br/#/?q=puma concolor
+                    </code></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard">
+        <h2><span class="count">1</span> Dashboard e Estatísticas</h2>
+        <div class="section-body">
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/totalNumbers</span>
+                </div>
+                <p class="ep-desc">Retorna os totais exibidos na página inicial: espécies avaliadas, espécies com ficha publicada, espécies ameaçadas e especialistas envolvidos.</p>
+                <details class="ep-details">
+                    <summary>Exemplo de resposta</summary>
+                    <pre>{
+  "data": [
+    { "order": 1, "label": "Espécies avaliadas", "value": 15123 },
+    { "order": 2, "label": "Espécies com ficha publicada", "value": 10234 },
+    { "order": 3, "label": "Espécies ameaçadas", "value": 3456 },
+    { "order": 4, "label": "Especialistas envolvidos", "value": 890 }
+  ],
+  "howToCite": "..."
+}</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/highlightedSpecies</span>
+                </div>
+                <p class="ep-desc">Retorna uma lista aleatória de espécies em destaque para o carrossel de imagens da página inicial.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>qtd</code></td><td><span class="type">int</span></td><td class="required no">Não</td><td>Quantidade de registros (padrão: <code>20</code>, máximo: <code>50</code>)</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplo de resposta</summary>
+                    <pre>{
+  "data": [
+    {
+      "fichaId": "43415372434c69492f47704466376444692b527170513d3d",
+      "cientificName": "Panthera onca",
+      "commonName": "Onça-pintada",
+      "category": "Vulnerável (VU)",
+      "authorName": "Autor, N.",
+      "downloadUrl": "https://salve.icmbio.gov.br/salve-api/public/speciePhoto/..."
+    }
+  ]
+}</pre>
+                </details>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CHARTS -->
+    <section id="charts">
+        <h2><span class="count">2</span> Gráficos</h2>
+        <div class="section-body">
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategories</span>
+                </div>
+                <p class="ep-desc">Dados para gráfico de espécies por categoria de avaliação (IUCN).</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>threatened</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Filtrar apenas ameaçadas (<code>Y</code>) ou não ameaçadas (<code>N</code>)</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplo</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategories?threatened=Y</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategoriesBiome</span>
+                </div>
+                <p class="ep-desc">Dados para gráfico de categorias de avaliação filtradas por bioma.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>biome</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Nome do bioma: <code>Amazônia</code>, <code>Caatinga</code>, <code>Cerrado</code>, <code>Marinho</code>, <code>Mata Atlântica</code>, <code>Pampa</code>, <code>Pantanal</code></td></tr>
+                        <tr><td><code>threatened</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Apenas ameaçadas (<code>S</code>)</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplos</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategoriesBiome?biome=Cerrado
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategoriesBiome?biome=Cerrado&threatened=S
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategoriesBiome?threatened=S</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedGroups</span>
+                </div>
+                <p class="ep-desc">Dados para gráfico de espécies por grupo taxonômico.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>threatened</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td><code>Y</code> (ameaçadas), <code>N</code> (não ameaçadas), <code>A</code> (todas &mdash; padrão)</td></tr>
+                        <tr><td><code>group</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Código do grupo (ex.: <code>MAMIFEROS</code>, <code>AVES</code>)</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplos</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedGroups?threatened=Y
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedGroups?threatened=Y&group=MAMIFEROS</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/graphThreatenedGroupsCategories</span>
+                </div>
+                <p class="ep-desc">Dados para gráfico de espécies ameaçadas agrupadas por grupo e categoria (CR, EN, VU).</p>
+                <details class="ep-details">
+                    <summary>Exemplo de resposta</summary>
+                    <pre>{
+  "data": {
+    "MAMIFEROS": {
+      "label": "Mamíferos",
+      "categories": {
+        "CR": { "label": "Criticamente em Perigo (CR)", "total": 36, "percent": 54.5 },
+        "EN": { "label": "Em Perigo (EN)", "total": 12, "percent": 18.2 },
+        "VU": { "label": "Vulnerável (VU)", "total": 18, "percent": 27.3 }
+      }
+    }
+  }
+}</pre>
+                </details>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- TEAM -->
+    <section id="team">
+        <h2><span class="count">3</span> Equipe e Instituições</h2>
+        <div class="section-body">
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/processCoordinationTeam</span>
+                </div>
+                <p class="ep-desc">Lista dos participantes da coordenação do processo de avaliação.</p>
+                <details class="ep-details">
+                    <summary>Campos retornados</summary>
+                    <pre>{
+  "data": [
+    {
+      "fullName": "Nome completo",
+      "urlPhoto": "...",
+      "position": "Cargo",
+      "urlCurriculumLattes": "...",
+      "institutionalEmail": "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d8bdb5b9b1b498b1bbb5bab1b7f6bfb7aef6baaa">[email&#160;protected]</a>",
+      "sortBy": 1
+    }
+  ]
+}</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/taxonCoordinators</span>
+                </div>
+                <p class="ep-desc">Lista dos coordenadores de táxon.</p>
+                <details class="ep-details">
+                    <summary>Campos retornados</summary>
+                    <pre>{
+  "data": [
+    {
+      "fullName": "Nome completo",
+      "organizationUnit": "Instituição",
+      "email": "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="791c141810153910170a0d100d0c101a1816571b0b">[email&#160;protected]</a>",
+      "groups": "Grupo1, Grupo2"
+    }
+  ]
+}</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/focalPoints</span>
+                </div>
+                <p class="ep-desc">Lista dos pontos focais.</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/supportTeam</span>
+                </div>
+                <p class="ep-desc">Lista da equipe de apoio.</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/validatorsTeam</span>
+                </div>
+                <p class="ep-desc">Lista dos validadores.</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/researchCenters</span>
+                </div>
+                <p class="ep-desc">Lista dos centros de pesquisa.</p>
+                <details class="ep-details">
+                    <summary>Campos retornados</summary>
+                    <pre>{
+  "data": [
+    {
+      "id": 1,
+      "shortName": "Sigla",
+      "fullName": "Nome completo",
+      "urlImage": "...",
+      "urlSite": "..."
+    }
+  ]
+}</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/partnerEntities</span>
+                </div>
+                <p class="ep-desc">Lista das entidades parceiras.</p>
+                <details class="ep-details">
+                    <summary>Campos retornados</summary>
+                    <pre>{
+  "data": [
+    {
+      "order": 1,
+      "fullName": "Nome da entidade",
+      "urlImage": "...",
+      "urlSite": "..."
+    }
+  ]
+}</pre>
+                </details>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PUBLICATIONS AND MEDIA -->
+    <section id="media">
+        <h2><span class="count">4</span> Publicações e Mídia</h2>
+        <div class="section-body">
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/publications</span>
+                </div>
+                <p class="ep-desc">Retorna a lista de publicações organizadas por tipo: <code>ATOS_OFICIAIS</code>, <code>TECNICO_CIENTIFICA</code>, <code>SALVE_MIDIA</code>.</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/redBooks</span>
+                </div>
+                <p class="ep-desc">Retorna o total atual de espécies ameaçadas da lista oficial e a lista de livros vermelhos publicados.</p>
+                <details class="ep-details">
+                    <summary>Exemplo de resposta</summary>
+                    <pre>{
+  "data": {
+    "totalThreatenedSpecies": 1234,
+    "volumes": [
+      {
+        "title": "Livro Vermelho ...",
+        "description": "Descrição do volume",
+        "urlImage": "...",
+        "urlPdf": "..."
+      }
+    ]
+  }
+}</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/publicationImage/<span class="path-param">{noArquivo}</span></span>
+                </div>
+                <p class="ep-desc">Retorna a imagem de uma publicação. O parâmetro <code>noArquivo</code> é o nome do arquivo criptografado (AES).</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>noArquivo</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>Nome do arquivo de imagem criptografado (AES). Suporta <code>.jpg</code>, <code>.jpeg</code>, <code>.png</code>.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SPECIES MEDIA -->
+    <section id="species-media">
+        <h2><span class="count">5</span> Mídia da Espécie</h2>
+        <div class="section-body">
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/speciePhoto/<span class="path-param">{idPhoto}</span>/<span class="path-param">{sizePhoto}</span></span>
+                </div>
+                <p class="ep-desc">Faz o download da foto de uma espécie. Pode receber o ID criptografado da tabela multimídia ou o nome do arquivo.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>idPhoto</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>ID da foto criptografado ou nome do arquivo (path).</td></tr>
+                        <tr><td><code>sizePhoto</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Tamanho: <code>full</code> (imagem completa), <code>small</code>, <code>thumb</code>. Padrão: tamanho do carrossel (250&times;410).</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplos</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/speciePhoto/7175633544764456307932584b59424433324a4245413d3d
+https://salve.icmbio.gov.br/salve-api/public/speciePhoto/7175633544764456307932584b59424433324a4245413d3d/full</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/anexo/<span class="path-param">{idFichaAnexo}</span></span>
+                </div>
+                <p class="ep-desc">Faz o download de um anexo da ficha da espécie.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>idFichaAnexo</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>ID do anexo (path).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SPECIES SHEET -->
+    <section id="species-sheet">
+        <h2><span class="count">6</span> Fichas das Espécies</h2>
+        <div class="section-body">
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/fichaPdf/<span class="path-param">{id}</span></span>
+                </div>
+                <p class="ep-desc">Retorna o PDF da ficha da espécie para download. O parâmetro <code>id</code> é o ID da ficha criptografado (AES).</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>id</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>ID da ficha criptografado (AES).</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplo</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/fichaPdf/302b4a6f715837632b3233535642736e6f2b766b53673d3d</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/fichaVersaoPdf/<span class="path-param">{id}</span></span>
+                </div>
+                <p class="ep-desc">Retorna o PDF de uma versão específica da ficha.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>id</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>ID da versão da ficha criptografado (AES).</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplo</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/fichaVersaoPdf/302b4a6f715837632b3233535642736e6f2b766b53673d3d</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/fichaHtml</span>
+                </div>
+                <p class="ep-desc">Retorna os dados HTML de uma seção específica da ficha da espécie.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>idFicha</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>ID da ficha criptografado (AES).</td></tr>
+                        <tr><td><code>section</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>
+                            Seção da ficha. Valores dispon&iacute;veis:
+                            <code>header</code>, <code>taxonomicClassification</code>, <code>distribution</code>,
+                            <code>naturalHistory</code>, <code>population</code>, <code>threats</code>,
+                            <code>uses</code>, <code>conservation</code>, <code>research</code>,
+                            <code>bibliographicReferences</code>, <code>authors</code>.
+                            Se não informado, retorna todas as seções.
+                        </td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplos</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/fichaHtml?idFicha=302b4a6f715837632b3233535642736e6f2b766b53673d3d&amp;section=header
+https://salve.icmbio.gov.br/salve-api/public/fichaHtml?idFicha=302b4a6f715837632b3233535642736e6f2b766b53673d3d&amp;section=distribution</pre>
+                </details>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section id="search">
+        <h2><span class="count">7</span> Busca e Filtros</h2>
+        <div class="section-body">
+
+            <!-- SELECT OPTIONS -->
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/selectOptions</span>
+                </div>
+                <p class="ep-desc">Retorna todos os valores para alimentar os campos de seleção da busca avançada (grupos, regiões, categorias, estados, biomas, etc.).</p>
+
+            <p style="color:red">Utilize este endpoint para ter acesso aos IDs utilizados nas pesquisas abaixo.</p>
+            </div>
+
+            <!-- SEARCH (main) -->
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/search</span>
+                </div>
+                <p class="ep-desc">
+                    <strong>Endpoint principal de busca.</strong> Retorna fichas de espécies com base nos filtros informados.
+                    Suporta paginação, ordenação e exportação dos resultados.
+                </p>
+
+                <h4 style="margin:12px 0 6px;color:var(--gray);">Parâmetros de busca textual</h4>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>q</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Nome científico ou nome comum (mín. 3 caracteres; múltiplos separados por <code>;</code>).</td></tr>
+                        <tr><td><code>publicada</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Filtrar por fichas publicadas: <code>S</code> ou <code>N</code>.</td></tr>
+                        <tr><td><code>endemicaBrasil</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Endêmica do Brasil: <code>S</code> ou <code>N</code>.</td></tr>
+                        <tr><td><code>presencaListaVigente</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Presente na lista oficial vigente: <code>S</code> ou <code>N</code>.</td></tr>
+                        <tr><td><code>taxonId</code></td><td><span class="type">long</span></td><td class="required no">Não</td><td>ID do nível taxonômico.</td></tr>
+                        <tr><td><code>autorNome</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Nome do autor.</td></tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin:12px 0 6px;color:var(--gray);">Filtros geográficos e taxonômicos</h4>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>categoriaIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs das categorias IUCN separados por vírgula.</td></tr>
+                        <tr><td><code>grupoIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs dos grupos taxonômicos separados por vírgula.</td></tr>
+                        <tr><td><code>regiaoIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs das regiões separados por vírgula.</td></tr>
+                        <tr><td><code>estadoIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs dos estados separados por vírgula.</td></tr>
+                        <tr><td><code>biomaIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs dos biomas separados por vírgula.</td></tr>
+                        <tr><td><code>ucIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs das Unidades de Conservação separados por vírgula.</td></tr>
+                        <tr><td><code>esferaUc</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Esfera da UC: <code>F</code> (Federal), <code>E</code> (Estadual), <code>R</code> (Municipal).</td></tr>
+                        <tr><td><code>baciaIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs das bacias hidrográficas separados por vírgula.</td></tr>
+                        <tr><td><code>panIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs dos Planos de Ação Nacional separados por vírgula.</td></tr>
+                        <tr><td><code>ameacaIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs das ameaças separados por vírgula.</td></tr>
+                        <tr><td><code>usoIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs dos usos separados por vírgula.</td></tr>
+                        <tr><td><code>threatened</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Apenas ameaçadas: <code>Y</code> ou <code>S</code>.</td></tr>
+                        <tr><td><code>pex</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Incluir "Possivelmente Extinta": <code>S</code>.</td></tr>
+                        <tr><td><code>selectedIds</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>IDs criptografados de fichas pré-selecionadas (separados por vírgula).</td></tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin:12px 0 6px;color:var(--gray);">Flags de endemicidade e presença</h4>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>endemicaRegiao</code></td><td><span class="type">S/N</span></td><td>Endêmica da região.</td></tr>
+                        <tr><td><code>endemicaEstado</code></td><td><span class="type">S/N</span></td><td>Endêmica do estado.</td></tr>
+                        <tr><td><code>endemicaBioma</code></td><td><span class="type">S/N</span></td><td>Endêmica do bioma.</td></tr>
+                        <tr><td><code>endemicaBacia</code></td><td><span class="type">S/N</span></td><td>Endêmica da bacia.</td></tr>
+                        <tr><td><code>presencaAtualRegiao</code></td><td><span class="type">S/N</span></td><td>Presença atual na região.</td></tr>
+                        <tr><td><code>presencaAtualEstado</code></td><td><span class="type">S/N</span></td><td>Presença atual no estado.</td></tr>
+                        <tr><td><code>presencaAtualBioma</code></td><td><span class="type">S/N</span></td><td>Presença atual no bioma.</td></tr>
+                        <tr><td><code>presencaAtualBacia</code></td><td><span class="type">S/N</span></td><td>Presença atual na bacia.</td></tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin:12px 0 6px;color:var(--gray);">Paginação e ordenação</h4>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>paginationPageSize</code></td><td><span class="type">int</span></td><td>Quantidade de registros por página.</td></tr>
+                        <tr><td><code>paginationPageNumber</code></td><td><span class="type">int</span></td><td>Número da página (retornado na resposta anterior).</td></tr>
+                        <tr><td><code>paginationTotalPages</code></td><td><span class="type">int</span></td><td>Total de páginas (retornado na resposta anterior).</td></tr>
+                        <tr><td><code>paginationTotalRecords</code></td><td><span class="type">int</span></td><td>Total de registros (retornado na resposta anterior).</td></tr>
+                        <tr><td><code>sortColumn</code></td><td><span class="type">string</span></td><td>Nome da coluna para ordenação.</td></tr>
+                        <tr><td><code>sortOrder</code></td><td><span class="type">string</span></td><td><code>asc</code> ou <code>desc</code>.</td></tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin:12px 0 6px;color:var(--gray);">Exportação</h4>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>export</code></td><td><span class="type">string</span></td><td>
+                            Formato de exportação:
+                            <code>row</code> (planilha), <code>pdf</code> (PDF), <code>reg</code> (registros de ocorrência).
+                            Padrão: <code>HTML</code> (JSON paginado).
+                        </td></tr>
+                        <tr><td><code>email</code></td><td><span class="type">string</span></td><td>E-mail para notificação quando a exportação assíncrona estiver concluída.</td></tr>
+                        <tr><td><code>reCaptchaToken</code></td><td><span class="type">string</span></td><td>Token do reCAPTCHA v3 (atualmente não exigido).</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="highlight">
+                    <strong>Exportação assíncrona:</strong> Ao usar <code>export=row</code>, <code>export=pdf</code> ou <code>export=reg</code>,
+                    a resposta retorna um <code>pid</code> (ex.: <code>job-xxxxx</code>). Consulte o progresso em
+                    <code>https://salve.icmbio.gov.br/salve-api/public/job/{pid}</code>. Quando finalizado, um link de download é disponibilizado.
+                </div>
+
+                <details class="ep-details">
+                    <summary>Exemplos de uso</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/search?q=Puma concolor
+https://salve.icmbio.gov.br/salve-api/public/search?categoriaIds=134&paginationPageSize=100
+https://salve.icmbio.gov.br/salve-api/public/search?q=onça&export=pdf
+https://salve.icmbio.gov.br/salve-api/public/search?biomaIds=22&presencaAtualBioma=S</pre>
+                </details>
+            </div>
+
+            <!-- SEARCH TAXON -->
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/searchTaxon</span>
+                </div>
+                <p class="ep-desc">Consulta o grupo taxonômico para alimentar o campo de seleção da busca avançada.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>q</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>Nome ou parte do nome do táxon.</td></tr>
+                        <tr><td><code>idLevel</code></td><td><span class="type">long</span></td><td class="required yes">Sim</td><td>Código do nível taxonômico: 1-Reino, 2-Filo, 3-Classe etc.</td></tr>
+                        <tr><td><code>criteria</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Critério de busca: <code>startWith</code> (padrão) ou <code>containWord</code>.</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplo</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/searchTaxon?q=Animalia&idLevel=1&criteria=startWith</pre>
+                </details>
+            </div>
+
+
+
+            <!-- SEARCH UC -->
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/searchUc</span>
+                </div>
+                <p class="ep-desc">Consulta Unidades de Conservação para alimentar o campo de seleção da busca avançada por UC.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>q</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>Nome ou parte do nome da UC.</td></tr>
+                        <tr><td><code>sphere</code></td><td><span class="type">string</span></td><td class="required no">Não</td><td>Esfera: <code>F</code> (Federal, padrão), <code>E</code> (Estadual), <code>R</code> (Municipal).</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplos</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/searchUc?sphere=F&q=Brasília
+https://salve.icmbio.gov.br/salve-api/public/searchUc?sphere=R&q=ILHA</pre>
+                </details>
+            </div>
+
+            <!-- SEARCH AMEACA -->
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/searchAmeaca</span>
+                </div>
+                <p class="ep-desc">Consulta ameaças para alimentar o campo de seleção da busca avançada.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>q</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>Nome ou parte do nome da ameaça.</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplo</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/searchAmeaca?q=petróleo</pre>
+                </details>
+            </div>
+
+            <!-- SEARCH USO -->
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/searchUso</span>
+                </div>
+                <p class="ep-desc">Consulta usos para alimentar o campo de seleção da busca avançada.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>q</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>Nome ou parte do nome do uso.</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplo</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/searchUso?q=alimentacao</pre>
+                </details>
+            </div>
+
+            <!-- SEARCH BACIA -->
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/searchBacia</span>
+                </div>
+                <p class="ep-desc">Consulta bacias hidrográficas para alimentar o campo de seleção da busca avançada.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>q</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>Nome ou parte do nome da bacia.</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplo</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/searchBacia?q=amazonas</pre>
+                </details>
+            </div>
+
+            <!-- SEARCH PAN -->
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/searchPan</span>
+                </div>
+                <p class="ep-desc">Consulta Planos de Ação Nacional (PAN) para alimentar o campo de seleção da busca avançada.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>q</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>Nome ou parte do nome do PAN.</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplo</summary>
+                    <pre>https://salve.icmbio.gov.br/salve-api/public/searchPan?q=aves</pre>
+                </details>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- UTILITIES -->
+    <section id="utilities">
+        <h2><span class="count">8</span> Utilitários</h2>
+        <div class="section-body">
+            
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/job/<span class="path-param">{pid}</span></span>
+                </div>
+                <p class="ep-desc">Consulta o andamento de um job de exportação assíncrona. O <code>pid</code> é retornado pelos endpoints de exportação (<code>search?export=...</code>).</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>pid</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>PID do job (ex.: <code>job-xxxxx</code>).</td></tr>
+                    </tbody>
+                </table>
+                <details class="ep-details">
+                    <summary>Exemplo de resposta</summary>
+                    <pre>{
+  "data": {
+    "pid": "job-12345-01-01-2025-12-00-00",
+    "percent": 100,
+    "running": false,
+    "fileName": "salve-exportacao-ficha-...csv",
+    "downloadUrl": "https://salve.icmbio.gov.br/salve-api/public/download?fileName=..."
+  }
+}</pre>
+                </details>
+            </div>
+
+            <div class="endpoint">
+                <div class="ep-header">
+                    <span class="ep-method get">GET</span>
+                    <span class="ep-url">https://salve.icmbio.gov.br/salve-api/public/download</span>
+                </div>
+                <p class="ep-desc">Faz o download de um arquivo gerado por exportação assíncrona. Utilizado internamente pelo endpoint <code>/job</code>.</p>
+                <table class="params">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Obrig.</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>fileName</code></td><td><span class="type">string</span></td><td class="required yes">Sim</td><td>Nome do arquivo para download.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SUMMARY TABLE -->
+    <section id="summary">
+        <h2><span class="count">9</span> Resumo dos Endpoints Públicos</h2>
+        <div class="section-body">
+            <div style="overflow-x:auto;">
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th style="width:70px;">Método</th>
+                            <th>Endpoint</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/totalNumbers</code></td><td>Totais da página inicial</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/highlightedSpecies</code></td><td>Espécies em destaque (carrossel)</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/speciePhoto/{idPhoto}/{sizePhoto?}</code></td><td>Foto da espécie</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/anexo/{idFichaAnexo}</code></td><td>Download de anexo</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/publicationImage/{noArquivo}</code></td><td>Imagem de publicação</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/graphEvaluatedCategories</code></td><td>Gráfico de categorias IUCN</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/graphEvaluatedCategoriesBiome</code></td><td>Gráfico de categorias por bioma</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/graphEvaluatedGroups</code></td><td>Gráfico de grupos avaliados</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/graphThreatenedGroupsCategories</code></td><td>Gráfico ameaçadas por grupo/categoria</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/redBooks</code></td><td>Livros vermelhos</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/publications</code></td><td>Lista de publicações</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/processCoordinationTeam</code></td><td>Coordenação do processo</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/taxonCoordinators</code></td><td>Coordenadores de táxon</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/focalPoints</code></td><td>Pontos focais</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/supportTeam</code></td><td>Grupo de apoio</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/validatorsTeam</code></td><td>Validadores</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/researchCenters</code></td><td>Centros de pesquisa</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/partnerEntities</code></td><td>Entidades parceiras</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/search</code></td><td>Busca principal (com filtros e exportação)</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/selectOptions</code></td><td>Opções dos campos de seleção</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/searchTaxon</code></td><td>Busca de táxon</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/searchUc</code></td><td>Busca de UC</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/searchAmeaca</code></td><td>Busca de ameaças</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/searchUso</code></td><td>Busca de usos</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/searchBacia</code></td><td>Busca de bacias hidrográficas</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/searchPan</code></td><td>Busca de PAN</td></tr>
+                        
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/fichaPdf/{id}</code></td><td>Download PDF da ficha</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/fichaVersaoPdf/{id}</code></td><td>Download PDF da versão da ficha</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/fichaHtml</code></td><td>Ficha em HTML (por seção)</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/job/{pid}</code></td><td>Consulta de job assíncrono</td></tr>
+                        <tr><td><span class="ep-method get">GET</span></td><td><code>public/download</code></td><td>Download de arquivo</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+        <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/javascript" src="/salve-api/assets/application-2ebfc9fec044610b826485c2ed67f710.js" ></script>
+	</body>
+</html>

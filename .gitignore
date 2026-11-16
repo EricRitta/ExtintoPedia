@@ -1,0 +1,23 @@
+# dependências / ambientes
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# build e cache
+dist/
+.vite/
+*.log
+
+# banco: nada de arquivos do Postgres no repo (o volume fica no Docker).
+# O conteúdo está salvo em db/backup/extintopedia.sql.gz (restaurar: ver README)
+pgdata/
+*.sqlite
+
+# download re-baixável (IBGE); o shapefile extraído em data/geo/biomas2025/ fica
+data/geo/*.zip
+
+# segredos / sistema
+.env
+.env.*
+.DS_Store

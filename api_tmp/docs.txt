@@ -1,0 +1,907 @@
+
+SALVE-API | Documentação dos Endpoints Públicos
+SALVE-API | Documentação dos Endpoints Públicos ICMBio
+Sistema de Avaliação do Risco de Extinção da Biodiversidade
+ICMBio - Instituto Chico Mendes de Conservação da Biodiversidade
+https://salve.icmbio.gov.br/salve-api/
+v1.3.1u
+📋 Índice
+Informações Gerais
+Dashboard e Estatísticas
+Gráficos
+Equipe e Instituições
+Publicações e Mídia
+Mídia da Espécie
+Fichas das Espécies
+Busca e Filtros
+Utilitários
+Resumo dos Endpoints
+i
+ Informações Gerais
+Base URL
+https://salve.icmbio.gov.br/salve-api/
+Formato de Resposta
+Todos os endpoints retornam 
+application/json
+ com a estrutura:
+{
+  "msg" : "",
+  "status" : 200,
+  "data" : [],
+  "pagination" : {},
+  "remoteIP" : "...",
+  "url" : "...",
+  "baseUrl" : "..."
+}
+Métodos HTTP
+Todos os endpoints públicos utilizam apenas o método 
+GET
+.
+Paginação
+O endpoint 
+search
+ retorna paginação no campo 
+pagination
+ com os atributos: 
+paginationPageSize
+, 
+paginationTotalRecords
+, 
+paginationPageNumber
+, 
+paginationTotalPages
+, 
+paginationFirstRowNum
+.
+Cache
+As consultas são cacheadas em disco por 60 minutos (padrão). É possível alterar com o parâmetro opcional 
+cacheMinutes
+.
+Controle de Acesso
+Atualmente o acesso à API é 
+público e irrestrito
+. Os acessos são registrados para auditoria.
+Criptografia de IDs
+IDs de fichas e imagens são transmitidos criptografados (AES) nas URLs e válidos apenas no mesmo dia em que foram gerados. Utilize os valores retornados pela API nas requisições subsequentes.
+Ficha HTML da Espécie
+                    https://salve.icmbio.gov.br/#/?q={NOME DA ESPÉCIE}
+                    https://salve.icmbio.gov.br/#/?q=puma concolor
+1
+ Dashboard e Estatísticas
+GET
+https://salve.icmbio.gov.br/salve-api/public/totalNumbers
+Retorna os totais exibidos na página inicial: espécies avaliadas, espécies com ficha publicada, espécies ameaçadas e especialistas envolvidos.
+Exemplo de resposta
+{
+  "data": [
+    { "order": 1, "label": "Espécies avaliadas", "value": 15123 },
+    { "order": 2, "label": "Espécies com ficha publicada", "value": 10234 },
+    { "order": 3, "label": "Espécies ameaçadas", "value": 3456 },
+    { "order": 4, "label": "Especialistas envolvidos", "value": 890 }
+  ],
+  "howToCite": "..."
+}
+GET
+https://salve.icmbio.gov.br/salve-api/public/highlightedSpecies
+Retorna uma lista aleatória de espécies em destaque para o carrossel de imagens da página inicial.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+qtd
+int
+Não
+Quantidade de registros (padrão: 
+20
+, máximo: 
+50
+)
+Exemplo de resposta
+{
+  "data": [
+    {
+      "fichaId": "43415372434c69492f47704466376444692b527170513d3d",
+      "cientificName": "Panthera onca",
+      "commonName": "Onça-pintada",
+      "category": "Vulnerável (VU)",
+      "authorName": "Autor, N.",
+      "downloadUrl": "https://salve.icmbio.gov.br/salve-api/public/speciePhoto/..."
+    }
+  ]
+}
+2
+ Gráficos
+GET
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategories
+Dados para gráfico de espécies por categoria de avaliação (IUCN).
+Parâmetro
+Tipo
+Obrig.
+Descrição
+threatened
+string
+Não
+Filtrar apenas ameaçadas (
+Y
+) ou não ameaçadas (
+N
+)
+Exemplo
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategories?threatened=Y
+GET
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategoriesBiome
+Dados para gráfico de categorias de avaliação filtradas por bioma.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+biome
+string
+Não
+Nome do bioma: 
+Amazônia
+, 
+Caatinga
+, 
+Cerrado
+, 
+Marinho
+, 
+Mata Atlântica
+, 
+Pampa
+, 
+Pantanal
+threatened
+string
+Não
+Apenas ameaçadas (
+S
+)
+Exemplos
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategoriesBiome?biome=Cerrado
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategoriesBiome?biome=Cerrado&threatened=S
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedCategoriesBiome?threatened=S
+GET
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedGroups
+Dados para gráfico de espécies por grupo taxonômico.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+threatened
+string
+Não
+Y
+ (ameaçadas), 
+N
+ (não ameaçadas), 
+A
+ (todas — padrão)
+group
+string
+Não
+Código do grupo (ex.: 
+MAMIFEROS
+, 
+AVES
+)
+Exemplos
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedGroups?threatened=Y
+https://salve.icmbio.gov.br/salve-api/public/graphEvaluatedGroups?threatened=Y&group=MAMIFEROS
+GET
+https://salve.icmbio.gov.br/salve-api/public/graphThreatenedGroupsCategories
+Dados para gráfico de espécies ameaçadas agrupadas por grupo e categoria (CR, EN, VU).
+Exemplo de resposta
+{
+  "data": {
+    "MAMIFEROS": {
+      "label": "Mamíferos",
+      "categories": {
+        "CR": { "label": "Criticamente em Perigo (CR)", "total": 36, "percent": 54.5 },
+        "EN": { "label": "Em Perigo (EN)", "total": 12, "percent": 18.2 },
+        "VU": { "label": "Vulnerável (VU)", "total": 18, "percent": 27.3 }
+      }
+    }
+  }
+}
+3
+ Equipe e Instituições
+GET
+https://salve.icmbio.gov.br/salve-api/public/processCoordinationTeam
+Lista dos participantes da coordenação do processo de avaliação.
+Campos retornados
+{
+  "data": [
+    {
+      "fullName": "Nome completo",
+      "urlPhoto": "...",
+      "position": "Cargo",
+      "urlCurriculumLattes": "...",
+      "institutionalEmail": "
+[email protected]
+",
+      "sortBy": 1
+    }
+  ]
+}
+GET
+https://salve.icmbio.gov.br/salve-api/public/taxonCoordinators
+Lista dos coordenadores de táxon.
+Campos retornados
+{
+  "data": [
+    {
+      "fullName": "Nome completo",
+      "organizationUnit": "Instituição",
+      "email": "
+[email protected]
+",
+      "groups": "Grupo1, Grupo2"
+    }
+  ]
+}
+GET
+https://salve.icmbio.gov.br/salve-api/public/focalPoints
+Lista dos pontos focais.
+GET
+https://salve.icmbio.gov.br/salve-api/public/supportTeam
+Lista da equipe de apoio.
+GET
+https://salve.icmbio.gov.br/salve-api/public/validatorsTeam
+Lista dos validadores.
+GET
+https://salve.icmbio.gov.br/salve-api/public/researchCenters
+Lista dos centros de pesquisa.
+Campos retornados
+{
+  "data": [
+    {
+      "id": 1,
+      "shortName": "Sigla",
+      "fullName": "Nome completo",
+      "urlImage": "...",
+      "urlSite": "..."
+    }
+  ]
+}
+GET
+https://salve.icmbio.gov.br/salve-api/public/partnerEntities
+Lista das entidades parceiras.
+Campos retornados
+{
+  "data": [
+    {
+      "order": 1,
+      "fullName": "Nome da entidade",
+      "urlImage": "...",
+      "urlSite": "..."
+    }
+  ]
+}
+4
+ Publicações e Mídia
+GET
+https://salve.icmbio.gov.br/salve-api/public/publications
+Retorna a lista de publicações organizadas por tipo: 
+ATOS_OFICIAIS
+, 
+TECNICO_CIENTIFICA
+, 
+SALVE_MIDIA
+.
+GET
+https://salve.icmbio.gov.br/salve-api/public/redBooks
+Retorna o total atual de espécies ameaçadas da lista oficial e a lista de livros vermelhos publicados.
+Exemplo de resposta
+{
+  "data": {
+    "totalThreatenedSpecies": 1234,
+    "volumes": [
+      {
+        "title": "Livro Vermelho ...",
+        "description": "Descrição do volume",
+        "urlImage": "...",
+        "urlPdf": "..."
+      }
+    ]
+  }
+}
+GET
+https://salve.icmbio.gov.br/salve-api/public/publicationImage/
+{noArquivo}
+Retorna a imagem de uma publicação. O parâmetro 
+noArquivo
+ é o nome do arquivo criptografado (AES).
+Parâmetro
+Tipo
+Obrig.
+Descrição
+noArquivo
+string
+Sim
+Nome do arquivo de imagem criptografado (AES). Suporta 
+.jpg
+, 
+.jpeg
+, 
+.png
+.
+5
+ Mídia da Espécie
+GET
+https://salve.icmbio.gov.br/salve-api/public/speciePhoto/
+{idPhoto}
+/
+{sizePhoto}
+Faz o download da foto de uma espécie. Pode receber o ID criptografado da tabela multimídia ou o nome do arquivo.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+idPhoto
+string
+Sim
+ID da foto criptografado ou nome do arquivo (path).
+sizePhoto
+string
+Não
+Tamanho: 
+full
+ (imagem completa), 
+small
+, 
+thumb
+. Padrão: tamanho do carrossel (250×410).
+Exemplos
+https://salve.icmbio.gov.br/salve-api/public/speciePhoto/7175633544764456307932584b59424433324a4245413d3d
+https://salve.icmbio.gov.br/salve-api/public/speciePhoto/7175633544764456307932584b59424433324a4245413d3d/full
+GET
+https://salve.icmbio.gov.br/salve-api/public/anexo/
+{idFichaAnexo}
+Faz o download de um anexo da ficha da espécie.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+idFichaAnexo
+string
+Sim
+ID do anexo (path).
+6
+ Fichas das Espécies
+GET
+https://salve.icmbio.gov.br/salve-api/public/fichaPdf/
+{id}
+Retorna o PDF da ficha da espécie para download. O parâmetro 
+id
+ é o ID da ficha criptografado (AES).
+Parâmetro
+Tipo
+Obrig.
+Descrição
+id
+string
+Sim
+ID da ficha criptografado (AES).
+Exemplo
+https://salve.icmbio.gov.br/salve-api/public/fichaPdf/302b4a6f715837632b3233535642736e6f2b766b53673d3d
+GET
+https://salve.icmbio.gov.br/salve-api/public/fichaVersaoPdf/
+{id}
+Retorna o PDF de uma versão específica da ficha.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+id
+string
+Sim
+ID da versão da ficha criptografado (AES).
+Exemplo
+https://salve.icmbio.gov.br/salve-api/public/fichaVersaoPdf/302b4a6f715837632b3233535642736e6f2b766b53673d3d
+GET
+https://salve.icmbio.gov.br/salve-api/public/fichaHtml
+Retorna os dados HTML de uma seção específica da ficha da espécie.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+idFicha
+string
+Sim
+ID da ficha criptografado (AES).
+section
+string
+Não
+                            Seção da ficha. Valores disponíveis:
+header
+, 
+taxonomicClassification
+, 
+distribution
+,
+naturalHistory
+, 
+population
+, 
+threats
+,
+uses
+, 
+conservation
+, 
+research
+,
+bibliographicReferences
+, 
+authors
+.
+                            Se não informado, retorna todas as seções.
+Exemplos
+https://salve.icmbio.gov.br/salve-api/public/fichaHtml?idFicha=302b4a6f715837632b3233535642736e6f2b766b53673d3d&section=header
+https://salve.icmbio.gov.br/salve-api/public/fichaHtml?idFicha=302b4a6f715837632b3233535642736e6f2b766b53673d3d&section=distribution
+7
+ Busca e Filtros
+GET
+https://salve.icmbio.gov.br/salve-api/public/selectOptions
+Retorna todos os valores para alimentar os campos de seleção da busca avançada (grupos, regiões, categorias, estados, biomas, etc.).
+Utilize este endpoint para ter acesso aos IDs utilizados nas pesquisas abaixo.
+GET
+https://salve.icmbio.gov.br/salve-api/public/search
+Endpoint principal de busca.
+ Retorna fichas de espécies com base nos filtros informados.
+                    Suporta paginação, ordenação e exportação dos resultados.
+Parâmetros de busca textual
+Parâmetro
+Tipo
+Obrig.
+Descrição
+q
+string
+Não
+Nome científico ou nome comum (mín. 3 caracteres; múltiplos separados por 
+;
+).
+publicada
+string
+Não
+Filtrar por fichas publicadas: 
+S
+ ou 
+N
+.
+endemicaBrasil
+string
+Não
+Endêmica do Brasil: 
+S
+ ou 
+N
+.
+presencaListaVigente
+string
+Não
+Presente na lista oficial vigente: 
+S
+ ou 
+N
+.
+taxonId
+long
+Não
+ID do nível taxonômico.
+autorNome
+string
+Não
+Nome do autor.
+Filtros geográficos e taxonômicos
+Parâmetro
+Tipo
+Obrig.
+Descrição
+categoriaIds
+string
+Não
+IDs das categorias IUCN separados por vírgula.
+grupoIds
+string
+Não
+IDs dos grupos taxonômicos separados por vírgula.
+regiaoIds
+string
+Não
+IDs das regiões separados por vírgula.
+estadoIds
+string
+Não
+IDs dos estados separados por vírgula.
+biomaIds
+string
+Não
+IDs dos biomas separados por vírgula.
+ucIds
+string
+Não
+IDs das Unidades de Conservação separados por vírgula.
+esferaUc
+string
+Não
+Esfera da UC: 
+F
+ (Federal), 
+E
+ (Estadual), 
+R
+ (Municipal).
+baciaIds
+string
+Não
+IDs das bacias hidrográficas separados por vírgula.
+panIds
+string
+Não
+IDs dos Planos de Ação Nacional separados por vírgula.
+ameacaIds
+string
+Não
+IDs das ameaças separados por vírgula.
+usoIds
+string
+Não
+IDs dos usos separados por vírgula.
+threatened
+string
+Não
+Apenas ameaçadas: 
+Y
+ ou 
+S
+.
+pex
+string
+Não
+Incluir "Possivelmente Extinta": 
+S
+.
+selectedIds
+string
+Não
+IDs criptografados de fichas pré-selecionadas (separados por vírgula).
+Flags de endemicidade e presença
+Parâmetro
+Tipo
+Descrição
+endemicaRegiao
+S/N
+Endêmica da região.
+endemicaEstado
+S/N
+Endêmica do estado.
+endemicaBioma
+S/N
+Endêmica do bioma.
+endemicaBacia
+S/N
+Endêmica da bacia.
+presencaAtualRegiao
+S/N
+Presença atual na região.
+presencaAtualEstado
+S/N
+Presença atual no estado.
+presencaAtualBioma
+S/N
+Presença atual no bioma.
+presencaAtualBacia
+S/N
+Presença atual na bacia.
+Paginação e ordenação
+Parâmetro
+Tipo
+Descrição
+paginationPageSize
+int
+Quantidade de registros por página.
+paginationPageNumber
+int
+Número da página (retornado na resposta anterior).
+paginationTotalPages
+int
+Total de páginas (retornado na resposta anterior).
+paginationTotalRecords
+int
+Total de registros (retornado na resposta anterior).
+sortColumn
+string
+Nome da coluna para ordenação.
+sortOrder
+string
+asc
+ ou 
+desc
+.
+Exportação
+Parâmetro
+Tipo
+Descrição
+export
+string
+                            Formato de exportação:
+row
+ (planilha), 
+pdf
+ (PDF), 
+reg
+ (registros de ocorrência).
+                            Padrão: 
+HTML
+ (JSON paginado).
+email
+string
+E-mail para notificação quando a exportação assíncrona estiver concluída.
+reCaptchaToken
+string
+Token do reCAPTCHA v3 (atualmente não exigido).
+Exportação assíncrona:
+ Ao usar 
+export=row
+, 
+export=pdf
+ ou 
+export=reg
+,
+                    a resposta retorna um 
+pid
+ (ex.: 
+job-xxxxx
+). Consulte o progresso em
+https://salve.icmbio.gov.br/salve-api/public/job/{pid}
+. Quando finalizado, um link de download é disponibilizado.
+Exemplos de uso
+https://salve.icmbio.gov.br/salve-api/public/search?q=Puma concolor
+https://salve.icmbio.gov.br/salve-api/public/search?categoriaIds=134&paginationPageSize=100
+https://salve.icmbio.gov.br/salve-api/public/search?q=onça&export=pdf
+https://salve.icmbio.gov.br/salve-api/public/search?biomaIds=22&presencaAtualBioma=S
+GET
+https://salve.icmbio.gov.br/salve-api/public/searchTaxon
+Consulta o grupo taxonômico para alimentar o campo de seleção da busca avançada.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+q
+string
+Sim
+Nome ou parte do nome do táxon.
+idLevel
+long
+Sim
+Código do nível taxonômico: 1-Reino, 2-Filo, 3-Classe etc.
+criteria
+string
+Não
+Critério de busca: 
+startWith
+ (padrão) ou 
+containWord
+.
+Exemplo
+https://salve.icmbio.gov.br/salve-api/public/searchTaxon?q=Animalia&idLevel=1&criteria=startWith
+GET
+https://salve.icmbio.gov.br/salve-api/public/searchUc
+Consulta Unidades de Conservação para alimentar o campo de seleção da busca avançada por UC.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+q
+string
+Sim
+Nome ou parte do nome da UC.
+sphere
+string
+Não
+Esfera: 
+F
+ (Federal, padrão), 
+E
+ (Estadual), 
+R
+ (Municipal).
+Exemplos
+https://salve.icmbio.gov.br/salve-api/public/searchUc?sphere=F&q=Brasília
+https://salve.icmbio.gov.br/salve-api/public/searchUc?sphere=R&q=ILHA
+GET
+https://salve.icmbio.gov.br/salve-api/public/searchAmeaca
+Consulta ameaças para alimentar o campo de seleção da busca avançada.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+q
+string
+Sim
+Nome ou parte do nome da ameaça.
+Exemplo
+https://salve.icmbio.gov.br/salve-api/public/searchAmeaca?q=petróleo
+GET
+https://salve.icmbio.gov.br/salve-api/public/searchUso
+Consulta usos para alimentar o campo de seleção da busca avançada.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+q
+string
+Sim
+Nome ou parte do nome do uso.
+Exemplo
+https://salve.icmbio.gov.br/salve-api/public/searchUso?q=alimentacao
+GET
+https://salve.icmbio.gov.br/salve-api/public/searchBacia
+Consulta bacias hidrográficas para alimentar o campo de seleção da busca avançada.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+q
+string
+Sim
+Nome ou parte do nome da bacia.
+Exemplo
+https://salve.icmbio.gov.br/salve-api/public/searchBacia?q=amazonas
+GET
+https://salve.icmbio.gov.br/salve-api/public/searchPan
+Consulta Planos de Ação Nacional (PAN) para alimentar o campo de seleção da busca avançada.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+q
+string
+Sim
+Nome ou parte do nome do PAN.
+Exemplo
+https://salve.icmbio.gov.br/salve-api/public/searchPan?q=aves
+8
+ Utilitários
+GET
+https://salve.icmbio.gov.br/salve-api/public/job/
+{pid}
+Consulta o andamento de um job de exportação assíncrona. O 
+pid
+ é retornado pelos endpoints de exportação (
+search?export=...
+).
+Parâmetro
+Tipo
+Obrig.
+Descrição
+pid
+string
+Sim
+PID do job (ex.: 
+job-xxxxx
+).
+Exemplo de resposta
+{
+  "data": {
+    "pid": "job-12345-01-01-2025-12-00-00",
+    "percent": 100,
+    "running": false,
+    "fileName": "salve-exportacao-ficha-...csv",
+    "downloadUrl": "https://salve.icmbio.gov.br/salve-api/public/download?fileName=..."
+  }
+}
+GET
+https://salve.icmbio.gov.br/salve-api/public/download
+Faz o download de um arquivo gerado por exportação assíncrona. Utilizado internamente pelo endpoint 
+/job
+.
+Parâmetro
+Tipo
+Obrig.
+Descrição
+fileName
+string
+Sim
+Nome do arquivo para download.
+9
+ Resumo dos Endpoints Públicos
+Método
+Endpoint
+Descrição
+GET
+public/totalNumbers
+Totais da página inicial
+GET
+public/highlightedSpecies
+Espécies em destaque (carrossel)
+GET
+public/speciePhoto/{idPhoto}/{sizePhoto?}
+Foto da espécie
+GET
+public/anexo/{idFichaAnexo}
+Download de anexo
+GET
+public/publicationImage/{noArquivo}
+Imagem de publicação
+GET
+public/graphEvaluatedCategories
+Gráfico de categorias IUCN
+GET
+public/graphEvaluatedCategoriesBiome
+Gráfico de categorias por bioma
+GET
+public/graphEvaluatedGroups
+Gráfico de grupos avaliados
+GET
+public/graphThreatenedGroupsCategories
+Gráfico ameaçadas por grupo/categoria
+GET
+public/redBooks
+Livros vermelhos
+GET
+public/publications
+Lista de publicações
+GET
+public/processCoordinationTeam
+Coordenação do processo
+GET
+public/taxonCoordinators
+Coordenadores de táxon
+GET
+public/focalPoints
+Pontos focais
+GET
+public/supportTeam
+Grupo de apoio
+GET
+public/validatorsTeam
+Validadores
+GET
+public/researchCenters
+Centros de pesquisa
+GET
+public/partnerEntities
+Entidades parceiras
+GET
+public/search
+Busca principal (com filtros e exportação)
+GET
+public/selectOptions
+Opções dos campos de seleção
+GET
+public/searchTaxon
+Busca de táxon
+GET
+public/searchUc
+Busca de UC
+GET
+public/searchAmeaca
+Busca de ameaças
+GET
+public/searchUso
+Busca de usos
+GET
+public/searchBacia
+Busca de bacias hidrográficas
+GET
+public/searchPan
+Busca de PAN
+GET
+public/fichaPdf/{id}
+Download PDF da ficha
+GET
+public/fichaVersaoPdf/{id}
+Download PDF da versão da ficha
+GET
+public/fichaHtml
+Ficha em HTML (por seção)
+GET
+public/job/{pid}
+Consulta de job assíncrono
+GET
+public/download
+Download de arquivo
