@@ -1,4 +1,4 @@
-:root { --borda: #e3e1d9; --fundo: #faf9f5; --tinta: #23221f; --suave: #6b6a63; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; color: var(--tinta); }
+:root { --borda: #e3e1d9; --fundo: #faf9f5; --tinta: #23221f; --suave: #6b6a63; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; color: var(--tinta); }
 * { box-sizing: border-box; }
 button, select, input { font: inherit; }
 body { margin: 0; }
@@ -24,7 +24,8 @@ h3 { margin: 22px 0 8px; font-size: 12px; text-transform: uppercase; letter-spac
 .legenda li { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; border-radius: 8px; }
 .legenda li.clicavel { cursor: pointer; } .legenda li.clicavel:hover { background: #eeece4; }
 .legenda i, .ponto { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
-.grupos { list-style: none; padding: 0; margin: 0; font-size: 14px; } .grupos li { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed var(--borda); }
+.grupos { list-style: none; padding: 0; margin: 0; font-size: 14px; } .grupos li { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px dashed var(--borda); border-radius: 8px; }
+.grupos li.clicavel { cursor: pointer; } .grupos li.clicavel:hover { background: #eeece4; }
 
 .bioma { border: 1px solid var(--borda); background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: pointer; }
 .bioma:hover, .bioma.ativo { border-color: #222; }

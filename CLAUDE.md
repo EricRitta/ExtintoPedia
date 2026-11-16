@@ -28,7 +28,7 @@ TypeScript em tudo no `app/` (Fastify + React/Vite + MapLibre, sem mapa-base, s�
 - Sistema Costeiro-Marinho não tem polígono (shapefile só tem os 6 biomas terrestres): aparece só como cartão nos estados litorâneos.
 
 ## Interface: feito e pendente
-- Feito: estados e biomas exportados com a mesma tolerância (`TOL` em `scripts/carregar_geo.py`) para as bordas alinharem; legenda clicável (abre a lista já filtrada por categoria, no Brasil ou no estado); cartões da lista com nome científico, popular em cinza e tipo; pilha de fontes explícita.
+- Feito: estados e biomas exportados com a mesma tolerância (`TOL` em `scripts/carregar_geo.py`) para as bordas alinharem; legenda clicável (abre a lista já filtrada por categoria, no Brasil ou no estado); lista de tipos de animal do estado também clicável; ranking com top 10; fonte Inter embutida via @fontsource (o navegador do dono não mapeava nenhuma fonte sem serifa e caía em monoespaçada); cartões da lista com nome científico, popular em cinza e tipo; pilha de fontes explícita.
 - Pendente: a gaveta da lista cobre o estado no mapa (ajustar o enquadramento quando abre).
 
 ## Convenções

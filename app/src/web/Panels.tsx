@@ -44,7 +44,7 @@ const nomeDe = (e: EspecieCard) => (e.temNomePopular ? <span>{e.nome}</span> : <
 export function BrasilPanel({ estados, onEstado, onCategoria }: { estados: EstadoResumo[]; onEstado: (uf: string) => void; onCategoria: (c: CategoriaCodigo) => void }) {
   const [br, setBr] = useState<BrasilResumo | null>(null);
   useEffect(() => { api.brasil().then(setBr); }, []);
-  const ranking = [...estados].sort((a, b) => b.ameacadas - a.ameacadas).slice(0, 8);
+  const ranking = [...estados].sort((a, b) => b.ameacadas - a.ameacadas).slice(0, 10);
   return (
     <div className="conteudo">
       <h1>ExtintoPedia</h1>
@@ -58,7 +58,7 @@ export function BrasilPanel({ estados, onEstado, onCategoria }: { estados: Estad
       )}
       <p className="dica">Clique em um estado do mapa.</p>
       <div className="escala"><span>menos</span><i /><span>mais espécies</span></div>
-      <h3>Estados com mais espécies ameaçadas</h3>
+      <h3>Top 10 estados com mais espécies ameaçadas</h3>
       <ol className="ranking">
         {ranking.map((e) => (
           <li key={e.uf} onClick={() => onEstado(e.uf)}>
@@ -71,8 +71,8 @@ export function BrasilPanel({ estados, onEstado, onCategoria }: { estados: Estad
 }
 
 // ---- painel do estado ----------------------------------------------------------------------------
-export function EstadoPanel({ detalhe, onVoltar, onBioma, biomaId, onCategoria }: {
-  detalhe: EstadoDetalhe | null; onVoltar: () => void; onBioma: (id: number) => void; biomaId: number | null; onCategoria: (c: CategoriaCodigo) => void;
+export function EstadoPanel({ detalhe, onVoltar, onBioma, biomaId, onCategoria, onGrupo }: {
+  detalhe: EstadoDetalhe | null; onVoltar: () => void; onBioma: (id: number) => void; biomaId: number | null; onCategoria: (c: CategoriaCodigo) => void; onGrupo: (g: string) => void;
 }) {
   if (!detalhe) return <div className="conteudo"><button className="voltar" onClick={onVoltar}>← Brasil</button><p>Carregando…</p></div>;
   return (
@@ -85,7 +85,7 @@ export function EstadoPanel({ detalhe, onVoltar, onBioma, biomaId, onCategoria }
       <h3>Por tipo de animal</h3>
       <ul className="grupos">
         {detalhe.porGrupo.map((g) => (
-          <li key={g.grupo}><span>{ICONE_GRUPO[g.grupo]} {g.grupo}</span><b>{g.n}</b></li>
+          <li key={g.grupo} className="clicavel" onClick={() => onGrupo(g.grupo)} title={`Ver espécies: ${g.grupo}`}><span>{ICONE_GRUPO[g.grupo]} {g.grupo}</span><b>{g.n}</b></li>
         ))}
       </ul>
       <h3>Biomas</h3>
@@ -127,16 +127,17 @@ export interface EscopoGaveta {
   biomaId: number | null; // null = estado inteiro (ou Brasil)
   porCategoria: PorCategoria;
   categoriaInicial: CategoriaCodigo | "";
+  grupoInicial: string;
 }
 
 export function Gaveta({ escopo, onFechar }: { escopo: EscopoGaveta; onFechar: () => void }) {
   const [categoria, setCategoria] = useState<string>(escopo.categoriaInicial);
-  const [grupo, setGrupo] = useState("");
+  const [grupo, setGrupo] = useState(escopo.grupoInicial);
   const [q, setQ] = useState("");
   const [lista, setLista] = useState<EspecieCard[] | null>(null);
 
   // novo escopo (outro bioma, outro filtro vindo da legenda): reinicia os filtros
-  useEffect(() => { setCategoria(escopo.categoriaInicial); setGrupo(""); setQ(""); }, [escopo.uf, escopo.biomaId, escopo.categoriaInicial]);
+  useEffect(() => { setCategoria(escopo.categoriaInicial); setGrupo(escopo.grupoInicial); setQ(""); }, [escopo.uf, escopo.biomaId, escopo.categoriaInicial, escopo.grupoInicial]);
   useEffect(() => {
     setLista(null);
     const t = setTimeout(() => {
