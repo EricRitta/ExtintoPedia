@@ -74,10 +74,10 @@ export function BrasilPanel({ estados, onEstado, onCategoria }: { estados: Estad
 export function EstadoPanel({ detalhe, onVoltar, onBioma, biomaId, onCategoria, onGrupo, onFicha }: {
   detalhe: EstadoDetalhe | null; onVoltar: () => void; onBioma: (id: number) => void; biomaId: number | null; onCategoria: (c: CategoriaCodigo) => void; onGrupo: (g: string) => void; onFicha: (id: number) => void;
 }) {
-  if (!detalhe) return <div className="conteudo"><button className="voltar" onClick={onVoltar}>← Brasil</button><p>Carregando…</p></div>;
+  if (!detalhe) return <div className="conteudo"><div className="voltar-barra"><button className="voltar" onClick={onVoltar}><span>←</span> Voltar para o Brasil</button></div><p>Carregando…</p></div>;
   return (
     <div className="conteudo">
-      <button className="voltar" onClick={onVoltar}>← Brasil</button>
+      <div className="voltar-barra"><button className="voltar" onClick={onVoltar}><span>←</span> Voltar para o Brasil</button></div>
       <h1>{detalhe.nome}</h1>
       <p className="sub">{detalhe.regiao} · <b>{detalhe.total}</b> espécies ameaçadas ou extintas</p>
       <BarraCategorias pc={detalhe.porCategoria} />

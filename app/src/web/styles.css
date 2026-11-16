@@ -12,7 +12,9 @@ h1 { margin: 6px 0 2px; font-size: 24px; }
 h3 { margin: 22px 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); }
 .sub { margin: 0 0 12px; color: var(--suave); font-size: 14px; }
 .dica { background: #fff3cd; border-radius: 8px; padding: 8px 10px; font-size: 14px; }
-.voltar { border: 0; background: none; color: var(--suave); cursor: pointer; padding: 0; font-size: 14px; }
+.voltar-barra { position: sticky; top: 0; z-index: 2; margin: -18px -20px 10px; padding: 12px 20px; background: var(--fundo); border-bottom: 1px solid var(--borda); }
+.voltar { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; border: 0; border-radius: 10px; padding: 11px 14px; background: #23221f; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.voltar:hover { background: #000; } .voltar span { font-size: 18px; line-height: 1; }
 .escala { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--suave); margin: 14px 0; }
 .escala i { flex: 1; height: 10px; border-radius: 5px; background: linear-gradient(90deg, #f1eee6, #fdd49e, #fc8d59, #d7301f, #7f0000); }
 .ranking { padding-left: 20px; margin: 0; } .ranking li { padding: 5px 0; cursor: pointer; } .ranking li:hover { color: #b30000; }
@@ -40,7 +42,7 @@ h3 { margin: 22px 0 8px; font-size: 12px; text-transform: uppercase; letter-spac
 .foto { object-fit: cover; background: #eee; display: block; }
 .foto.vazia { display: flex; align-items: center; justify-content: center; font-size: 32px; background: #ece9e0; }
 
-.gaveta { position: absolute; left: 12px; right: 434px; bottom: 12px; height: 58vh; background: var(--fundo); border-radius: 14px; box-shadow: 0 6px 30px rgba(0,0,0,.3); z-index: 3; display: flex; flex-direction: column; animation: sobe .25s ease-out; }
+.gaveta { position: absolute; left: 12px; right: 434px; top: 12px; bottom: 12px; background: var(--fundo); border-radius: 14px; box-shadow: 0 6px 30px rgba(0,0,0,.3); z-index: 3; display: flex; flex-direction: column; animation: sobe .25s ease-out; }
 @keyframes sobe { from { transform: translateY(40px); opacity: 0; } }
 .gaveta header { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--borda); }
 .gaveta h2 { margin: 0; font-size: 18px; } .gaveta header small { color: var(--suave); }
@@ -58,7 +60,7 @@ h3 { margin: 22px 0 8px; font-size: 12px; text-transform: uppercase; letter-spac
 .especie .popular::first-letter { text-transform: uppercase; }
 .especie .tipo { color: var(--suave); font-size: 12px; margin-top: 5px; }
 
-@media (max-width: 900px) { .painel { width: auto; left: 12px; top: auto; height: 45vh; } .gaveta { right: 12px; height: 60vh; } }
+@media (max-width: 900px) { .painel { width: auto; left: 12px; top: auto; height: 45vh; } .gaveta { right: 12px; } .grade { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 4px 12px 14px; } .filtros { padding: 10px 12px; } .gaveta header { padding: 10px 14px; } }
 
 .nome > span:first-child { display: inline-block; } .nome > span:first-child::first-letter { text-transform: uppercase; }
 

@@ -26,6 +26,12 @@ function bbox(fc: GeoJSON.FeatureCollection): [Pos, Pos] {
 
 maplibregl.setWorkerUrl(workerUrl);
 
+// reserva espaço para o painel: à direita no desktop, embaixo (45vh) no celular
+const margem = (extra = 20) => {
+  const cel = window.innerWidth <= 900;
+  return cel ? { top: extra, left: extra, right: extra, bottom: Math.round(window.innerHeight * 0.45) + extra } : { top: extra, bottom: extra, left: extra, right: 440 + (extra > 20 ? 20 : 0) };
+};
+
 const BRASIL: [Pos, Pos] = [[-74, -34], [-34, 5.5]];
 const VAZIO: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
@@ -43,7 +49,7 @@ export function MapView({ estados, uf, biomaId, onEstado, onBioma }: Props) {
       container: el.current!,
       style: { version: 8, sources: {}, layers: [{ id: "fundo", type: "background", paint: { "background-color": "#cfe3ee" } }] },
       bounds: BRASIL,
-      fitBoundsOptions: { padding: { top: 20, bottom: 20, left: 20, right: 440 } },
+      fitBoundsOptions: { padding: margem() },
       attributionControl: { compact: true, customAttribution: "Malhas: IBGE" },
       dragRotate: false,
     });
@@ -119,14 +125,14 @@ export function MapView({ estados, uf, biomaId, onEstado, onBioma }: Props) {
       m.setPaintProperty("estados-fill", "fill-opacity", uf ? ["case", ["==", ["get", "uf"], uf], 0.5, 0.35] : 0.9);
       if (!uf) {
         (m.getSource("biomas") as GeoJSONSource).setData(VAZIO);
-        m.fitBounds(BRASIL, { padding: { top: 20, bottom: 20, left: 20, right: 440 }, duration: 700 });
+        m.fitBounds(BRASIL, { padding: margem(), duration: 700 });
         return;
       }
       const fc: GeoJSON.FeatureCollection = await (await fetch(`/geo/biomas_${uf}.geojson`)).json();
       if (cb.current.uf !== uf) return;
       (m.getSource("biomas") as GeoJSONSource).setData(fc);
       const est = geoEstados.current!.features.filter((f) => f.properties!.uf === uf);
-      m.fitBounds(bbox({ type: "FeatureCollection", features: est }), { padding: { top: 40, bottom: 40, left: 40, right: 460 }, duration: 800 });
+      m.fitBounds(bbox({ type: "FeatureCollection", features: est }), { padding: margem(40), duration: 800 });
     });
   }, [uf]);
 

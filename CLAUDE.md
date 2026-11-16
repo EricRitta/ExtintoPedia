@@ -39,7 +39,8 @@ TypeScript em tudo no `app/` (Fastify + React/Vite + MapLibre, sem mapa-base, s�
 ## Interface: feito e pendente
 - Feito: estados e biomas exportados com a mesma tolerância (`TOL` em `scripts/carregar_geo.py`) para as bordas alinharem; legenda clicável (abre a lista já filtrada por categoria, no Brasil ou no estado); lista de tipos de animal do estado também clicável; ranking com top 10; cartões da lista com nome científico, popular em cinza e tipo; pilha de fontes explícita. (O dono usa LibreWolf configurado para forçar JetBrains Mono em todos os sites: texto monoespaçado nas capturas dele é do navegador, não bug do app. Ignorar.)
 - Feito: **ficha da espécie** (clique em cartão da lista ou no animal em destaque do bioma): `app/src/web/Ficha.tsx` + rotas `/api/especies/:id` (local) e `/api/especies/:id/extras` (SALVE sob demanda + cache `ficha_extra`; mapas de distribuição baixados em `data/mapas/`).
-- Pendente: a gaveta da lista cobre o estado no mapa (ajustar o enquadramento quando abre).
+- Feito: gaveta da lista vai do topo à base da tela (margem 12 px), 2 colunas no celular; botão "← Voltar para o Brasil" escuro, largo e fixo (sticky) no topo do painel do estado; enquadramento do mapa reserva o painel à direita (desktop) ou embaixo (≤900 px).
+- Pendente: no desktop a gaveta cobre o estado no mapa quando abre (só a faixa do painel direito fica livre).
 
 ## Convenções
 - Git: branch `main`. `node_modules`, `.venv`, logs e arquivos do banco ficam no `.gitignore`; o conteúdo do banco está em `db/backup/` e os dados brutos da API em `data/`.
