@@ -89,3 +89,11 @@ INSERT INTO estado (sigla, nome, regiao) VALUES
  ('PR','Paraná','Sul'),('RS','Rio Grande do Sul','Sul'),('SC','Santa Catarina','Sul');
 
 COMMIT;
+
+-- Cache das seções extras da ficha (buscadas sob demanda na SALVE-API). Chave = nome científico:
+-- sobrevive a recargas do banco (os ids das espécies mudam, o nome não). Fora do DROP/TRUNCATE de propósito.
+CREATE TABLE IF NOT EXISTS ficha_extra (
+    nome_cientifico text PRIMARY KEY,
+    conteudo        jsonb NOT NULL,
+    buscado_em      timestamptz NOT NULL DEFAULT now()
+);

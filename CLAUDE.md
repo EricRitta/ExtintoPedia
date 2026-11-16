@@ -8,7 +8,7 @@ Regra do projeto: os animais aparecem com imagem. Cartões do mapa/bioma usam no
 - Banco: **só em Docker** (nunca instalar Postgres local). `docker compose up -d` (PostGIS, porta 5433, usuário/db `extinto`/`extintopedia`).
 - App: `cd app && npm install && npm run dev` → http://localhost:5173 (API Fastify em :3001).
 - Python do pipeline: `.venv/bin/python` (Pillow, pyshp). Ordem dos scripts: ver `README.md`.
-- Restaurar o banco do zero: `gunzip -c db/backup/extintopedia.sql.gz | docker exec -i extintopedia-db psql -U extinto -d extintopedia`.
+- Restaurar o banco (se o volume do Docker for apagado, ex.: `docker compose down -v`): `docker compose up -d && scripts/restaurar_db.sh`. Refazer o backup depois de mudanças no banco: `docker exec extintopedia-db pg_dump -U extinto -d extintopedia --no-owner | gzip -9 > db/backup/extintopedia.sql.gz`.
 
 ## Stack
 TypeScript em tudo no `app/` (Fastify + React/Vite + MapLibre, sem mapa-base, só polígonos do IBGE). Pipeline de dados em Python em `scripts/`.
@@ -27,8 +27,18 @@ TypeScript em tudo no `app/` (Fastify + React/Vite + MapLibre, sem mapa-base, s�
 - Imagens são geradas localmente (600 px e 160 px) a partir do `/full` do SALVE: as versões `small`/`thumb` da API nem sempre existem.
 - Sistema Costeiro-Marinho não tem polígono (shapefile só tem os 6 biomas terrestres): aparece só como cartão nos estados litorâneos.
 
+## ⚠ Escopo dos dados (não esquecer)
+- **Só foram puxadas as espécies EXTINTAS e AMEAÇADAS** (EX, EW, RE, CR, EN, VU: 1.393). As ~16 mil avaliadas do SALVE (LC, NT, DD, NA…) **não** estão no banco. Qualquer total, ranking ou "espécies do estado" no app refere-se só a esse recorte. Ampliar para todas é decisão futura.
+
+## Ficha da espécie (clique no cartão): decisões
+- Ficha em duas camadas: (1) dados locais do banco, instantâneo; (2) seções extras da SALVE-API buscadas **sob demanda** e guardadas em cache (tabela `ficha_extra`, chave = nome científico, sobrevive a recargas do banco). Nada de baixar todas as fichas em lote (~170 KB/espécie, ~200 MB e 15 mil chamadas no total).
+- Seções extras usadas: `header` (citação, autoria), `distribution`, `naturalHistory`, `population`, `uses`.
+- **Ficam DE FORA por enquanto (pesadas; reavaliar depois): `conservation` (Ações de conservação, 57–74 KB/ficha, mais da metade da ficha) e `bibliographicReferences` (Referências, ~30 KB).** Também fora: `research`, `threats` detalhado (a lista de ameaças local vem do CSV).
+- O HTML da API é sanitizado no servidor (lista branca de tags) antes de guardar/exibir.
+
 ## Interface: feito e pendente
 - Feito: estados e biomas exportados com a mesma tolerância (`TOL` em `scripts/carregar_geo.py`) para as bordas alinharem; legenda clicável (abre a lista já filtrada por categoria, no Brasil ou no estado); lista de tipos de animal do estado também clicável; ranking com top 10; cartões da lista com nome científico, popular em cinza e tipo; pilha de fontes explícita. (O dono usa LibreWolf configurado para forçar JetBrains Mono em todos os sites: texto monoespaçado nas capturas dele é do navegador, não bug do app. Ignorar.)
+- Feito: **ficha da espécie** (clique em cartão da lista ou no animal em destaque do bioma): `app/src/web/Ficha.tsx` + rotas `/api/especies/:id` (local) e `/api/especies/:id/extras` (SALVE sob demanda + cache `ficha_extra`; mapas de distribuição baixados em `data/mapas/`).
 - Pendente: a gaveta da lista cobre o estado no mapa (ajustar o enquadramento quando abre).
 
 ## Convenções

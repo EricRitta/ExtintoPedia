@@ -51,3 +51,51 @@ export interface BrasilResumo {
   ameacadas: number;
   porCategoria: PorCategoria;
 }
+
+// ---- ficha da espécie --------------------------------------------------------------------------
+export interface FichaLocal {
+  id: number;
+  cientifico: string;
+  autor: string | null;
+  nome: string; // popular (ou científico, se não houver)
+  temNomePopular: boolean;
+  nomesComuns: string[];
+  categoria: CategoriaCodigo;
+  categoriaNome: string;
+  grupo: string;
+  taxonomia: { reino: string | null; filo: string | null; classe: string | null; ordem: string | null; familia: string | null; genero: string | null };
+  criterio: string | null;
+  possivelmenteExtinta: boolean;
+  justificativa: string | null;
+  endemicaBrasil: boolean | null;
+  migratoria: boolean | null;
+  tendencia: string | null;
+  periodoAvaliacao: string | null;
+  doi: string | null;
+  ameacas: string[]; // linhas do CSV, ex.: "1.1 - Expansão urbana"
+  planoAcao: string | null;
+  estados: string[]; // siglas
+  biomas: string[];
+  imagem: Imagem | null;
+}
+
+/** Strings de texto livre vêm como HTML já sanitizado pelo servidor. */
+export interface FichaExtras {
+  distribuicaoGlobal: string | null;
+  distribuicaoNacional: string | null;
+  bacias: string | null;
+  mapa: string | null; // URL local (/mapas/...)
+  mapaLegenda: string | null;
+  historia: {
+    descricao: string | null;
+    habitat: string | null;
+    alimentacao: string | null;
+    interacoes: string | null;
+    reproducao: { intervaloNascimento: string | null; gestacao: string | null; prole: string | null } | null;
+  };
+  populacao: { tempoGeracional: string | null; tendencia: string | null; genetica: string | null; observacoes: string | null };
+  usos: string | null;
+  citacao: string | null;
+  autoria: string | null;
+  buscadoEm: string;
+}

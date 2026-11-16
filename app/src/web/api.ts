@@ -1,4 +1,4 @@
-import type { BrasilResumo, EspecieCard, EstadoDetalhe, EstadoResumo } from "../shared/types.ts";
+import type { BrasilResumo, EspecieCard, FichaExtras, FichaLocal, EstadoDetalhe, EstadoResumo } from "../shared/types.ts";
 
 async function get<T>(url: string): Promise<T> {
   const r = await fetch(url);
@@ -7,6 +7,8 @@ async function get<T>(url: string): Promise<T> {
 }
 
 export const api = {
+  ficha: (id: number) => get<FichaLocal>(`/api/especies/${id}`),
+  extras: (id: number) => get<FichaExtras>(`/api/especies/${id}/extras`),
   brasil: () => get<BrasilResumo>("/api/brasil"),
   estados: () => get<EstadoResumo[]>("/api/estados"),
   estado: (uf: string) => get<EstadoDetalhe>(`/api/estados/${uf}`),

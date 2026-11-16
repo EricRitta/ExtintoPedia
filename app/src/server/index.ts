@@ -1,10 +1,11 @@
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import postgres from "postgres";
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import type { BiomaResumo, BrasilResumo, CategoriaCodigo, EspecieCard, EstadoDetalhe, EstadoResumo, PorCategoria } from "../shared/types.ts";
+import { buscarExtras } from "./ficha.ts";
+import type { BiomaResumo, BrasilResumo, FichaExtras, FichaLocal, CategoriaCodigo, EspecieCard, EstadoDetalhe, EstadoResumo, PorCategoria } from "../shared/types.ts";
 
 const aqui = path.dirname(fileURLToPath(import.meta.url));
 const raiz = path.resolve(aqui, "../../..");
@@ -123,8 +124,58 @@ app.get<{ Querystring: { uf?: string; bioma?: string; categoria?: string; grupo?
     return rows.map(card);
   });
 
+// ---- ficha -------------------------------------------------------------------------------------
+// camada 1: dados locais (instantâneo)
+app.get<{ Params: { id: string } }>("/api/especies/:id", async (req, rep): Promise<FichaLocal | void> => {
+  const [r] = await sql`
+    SELECT s.*, c.nome AS categoria_nome, g.nome AS grupo,
+           i.fonte, i.autor AS img_autor, i.licenca, i.url_origem, i.arquivo_media, i.arquivo_thumb,
+           (SELECT coalesce(array_agg(estado ORDER BY estado), '{}') FROM especie_estado WHERE especie_id = s.id) AS estados,
+           (SELECT coalesce(array_agg(b.nome ORDER BY b.nome), '{}') FROM especie_bioma eb JOIN bioma b ON b.id = eb.bioma_id WHERE eb.especie_id = s.id) AS biomas
+    FROM especie s JOIN categoria c ON c.codigo = s.categoria JOIN grupo g ON g.id = s.grupo_id
+    LEFT JOIN imagem i ON i.especie_id = s.id
+    WHERE s.id = ${Number(req.params.id)}`;
+  if (!r) return rep.code(404).send({ erro: "espécie não encontrada" });
+  const c = card({ ...r, autor: r.img_autor });
+  return {
+    id: r.id, cientifico: r.nome_cientifico, autor: r.autor, nome: c.nome, temNomePopular: c.temNomePopular, nomesComuns: r.nomes_comuns,
+    categoria: r.categoria, categoriaNome: r.categoria_nome, grupo: r.grupo,
+    taxonomia: { reino: r.reino, filo: r.filo, classe: r.classe, ordem: r.ordem_taxonomica, familia: r.familia, genero: r.genero },
+    criterio: r.criterio, possivelmenteExtinta: r.possivelmente_extinta, justificativa: r.justificativa,
+    endemicaBrasil: r.endemica_brasil, migratoria: r.migratoria, tendencia: r.tendencia_populacional, periodoAvaliacao: r.periodo_avaliacao, doi: r.doi,
+    ameacas: (r.ameacas ?? "").split("\n").map((l: string) => l.trim()).filter(Boolean),
+    planoAcao: r.plano_acao, estados: r.estados, biomas: r.biomas, imagem: c.imagem,
+  };
+});
+
+// camada 2: seções extras da SALVE-API, sob demanda, com cache no banco (ficha_extra)
+const dirMapas = path.join(raiz, "data/mapas");
+mkdirSync(dirMapas, { recursive: true });
+const emAndamento = new Map<string, Promise<FichaExtras>>(); // evita duas buscas simultâneas da mesma espécie
+app.get<{ Params: { id: string } }>("/api/especies/:id/extras", async (req, rep): Promise<FichaExtras | void> => {
+  const [e] = await sql`SELECT nome_cientifico FROM especie WHERE id = ${Number(req.params.id)}`;
+  if (!e) return rep.code(404).send({ erro: "espécie não encontrada" });
+  const nome: string = e.nome_cientifico;
+  const [cache] = await sql`SELECT conteudo FROM ficha_extra WHERE nome_cientifico = ${nome}`;
+  if (cache) return cache.conteudo as FichaExtras;
+  try {
+    let p = emAndamento.get(nome);
+    if (!p) {
+      p = buscarExtras(nome, dirMapas).finally(() => emAndamento.delete(nome));
+      emAndamento.set(nome, p);
+    }
+    const extras = await p;
+    await sql`INSERT INTO ficha_extra (nome_cientifico, conteudo) VALUES (${nome}, ${sql.json(extras as any)}) ON CONFLICT (nome_cientifico) DO UPDATE SET conteudo = EXCLUDED.conteudo, buscado_em = now()`;
+    return extras;
+  } catch (err) {
+    req.log.warn({ err: String(err) }, "falha ao buscar extras");
+    return rep.code(502).send({ erro: "SALVE indisponível ou ficha não encontrada" });
+  }
+});
+
 // ---- estáticos ---------------------------------------------------------------------------------
 await app.register(fastifyStatic, { root: path.join(raiz, "data/imagens"), prefix: "/img/", decorateReply: false, maxAge: "1d" });
+await app.register(fastifyStatic, { root: dirMapas, prefix: "/mapas/", decorateReply: false, maxAge: "1d" });
 const dist = path.resolve(aqui, "../../dist");
 if (existsSync(dist)) await app.register(fastifyStatic, { root: dist, prefix: "/", decorateReply: false });
 

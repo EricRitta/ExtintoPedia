@@ -61,3 +61,31 @@ h3 { margin: 22px 0 8px; font-size: 12px; text-transform: uppercase; letter-spac
 @media (max-width: 900px) { .painel { width: auto; left: 12px; top: auto; height: 45vh; } .gaveta { right: 12px; height: 60vh; } }
 
 .nome > span:first-child { display: inline-block; } .nome > span:first-child::first-letter { text-transform: uppercase; }
+
+/* ---- ficha ---- */
+.especie, .destaque { cursor: pointer; } .especie:hover { border-color: #222; }
+.f-fundo { position: fixed; inset: 0; background: rgba(20,18,12,.55); z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px; animation: surge .15s ease-out; }
+@keyframes surge { from { opacity: 0; } }
+.f-janela { position: relative; background: var(--fundo); border-radius: 16px; width: min(980px, 100%); max-height: 100%; overflow: auto; box-shadow: 0 10px 50px rgba(0,0,0,.45); }
+.f-fechar { position: absolute; top: 10px; right: 12px; z-index: 2; border: 0; background: rgba(255,255,255,.9); border-radius: 50%; width: 34px; height: 34px; font-size: 16px; cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,.3); }
+.f-topo { display: grid; grid-template-columns: minmax(240px, 340px) 1fr; gap: 24px; padding: 24px; border-bottom: 1px solid var(--borda); }
+.f-foto img { width: 100%; border-radius: 12px; display: block; background: #eee; }
+.f-semfoto { aspect-ratio: 4/3; border-radius: 12px; background: #ece9e0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 64px; } .f-semfoto small { font-size: 12px; color: var(--suave); }
+.f-credito { display: block; margin-top: 6px; color: var(--suave); font-size: 11px; } .f-credito a { color: inherit; }
+.f-ident h2 { margin: 0; font-size: 28px; line-height: 1.15; padding-right: 36px; } .f-autor { color: var(--suave); }
+.f-popular { margin: 10px 0 0; font-size: 17px; }
+.f-selos { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; } .selo.grande { font-size: 14px; padding: 3px 10px; border-radius: 12px; }
+.pex { font-size: 12px; background: #eee; border-radius: 8px; padding: 2px 8px; }
+.f-tipo { color: var(--suave); margin-bottom: 8px; }
+.f-fatos { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 10px 0; font-size: 14px; } .f-fatos dt { color: var(--suave); } .f-fatos dd { margin: 0; } .f-fatos a, .f-corpo a { color: #0b5cad; }
+.f-corpo { padding: 8px 24px 28px; max-width: 760px; }
+.f-secao h3 { margin: 26px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); border-bottom: 1px solid var(--borda); padding-bottom: 4px; }
+.f-secao h4 { margin: 16px 0 4px; font-size: 15px; }
+.html, .texto { line-height: 1.6; font-size: 15px; } .texto { white-space: pre-line; margin: 6px 0; }
+.html p { margin: 0 0 10px; } .html table { border-collapse: collapse; font-size: 13px; } .html td, .html th { border: 1px solid var(--borda); padding: 3px 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; } .chip { background: #eeece4; border-radius: 12px; padding: 2px 10px; font-size: 13px; } .chip.bioma { background: #dcebe3; }
+.f-mapa { margin: 12px 0; } .f-mapa img { max-width: 100%; border: 1px solid var(--borda); border-radius: 8px; background: #fff; } .f-mapa figcaption { font-size: 12px; color: var(--suave); }
+.ameacas { padding-left: 20px; margin: 6px 0; line-height: 1.5; } .ameacas ul { margin: 2px 0 6px; font-size: 14px; color: #444; }
+.f-carregando { color: var(--suave); padding: 12px 24px; } .f-aviso { background: #fff3cd; border-radius: 8px; padding: 10px 12px; font-size: 14px; } .f-aviso button { margin-left: 8px; }
+.f-fonte { margin-top: 28px; font-size: 12px; color: var(--suave); }
+@media (max-width: 760px) { .f-topo { grid-template-columns: 1fr; } }

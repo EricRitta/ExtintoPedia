@@ -71,8 +71,8 @@ export function BrasilPanel({ estados, onEstado, onCategoria }: { estados: Estad
 }
 
 // ---- painel do estado ----------------------------------------------------------------------------
-export function EstadoPanel({ detalhe, onVoltar, onBioma, biomaId, onCategoria, onGrupo }: {
-  detalhe: EstadoDetalhe | null; onVoltar: () => void; onBioma: (id: number) => void; biomaId: number | null; onCategoria: (c: CategoriaCodigo) => void; onGrupo: (g: string) => void;
+export function EstadoPanel({ detalhe, onVoltar, onBioma, biomaId, onCategoria, onGrupo, onFicha }: {
+  detalhe: EstadoDetalhe | null; onVoltar: () => void; onBioma: (id: number) => void; biomaId: number | null; onCategoria: (c: CategoriaCodigo) => void; onGrupo: (g: string) => void; onFicha: (id: number) => void;
 }) {
   if (!detalhe) return <div className="conteudo"><button className="voltar" onClick={onVoltar}>← Brasil</button><p>Carregando…</p></div>;
   return (
@@ -89,12 +89,12 @@ export function EstadoPanel({ detalhe, onVoltar, onBioma, biomaId, onCategoria, 
         ))}
       </ul>
       <h3>Biomas</h3>
-      {detalhe.biomas.map((b) => <CartaoBioma key={b.id} uf={detalhe.uf} b={b} ativo={b.id === biomaId} onAbrir={() => onBioma(b.id)} />)}
+      {detalhe.biomas.map((b) => <CartaoBioma key={b.id} uf={detalhe.uf} b={b} ativo={b.id === biomaId} onAbrir={() => onBioma(b.id)} onFicha={onFicha} />)}
     </div>
   );
 }
 
-function CartaoBioma({ uf, b, ativo, onAbrir }: { uf: string; b: BiomaResumo; ativo: boolean; onAbrir: () => void }) {
+function CartaoBioma({ uf, b, ativo, onAbrir, onFicha }: { uf: string; b: BiomaResumo; ativo: boolean; onAbrir: () => void; onFicha: (id: number) => void }) {
   const [d, setD] = useState(b.destaque);
   const sortear = (ev: React.MouseEvent) => { ev.stopPropagation(); api.destaque(uf, b.id).then((x) => x && setD(x)); };
   return (
@@ -105,7 +105,7 @@ function CartaoBioma({ uf, b, ativo, onAbrir }: { uf: string; b: BiomaResumo; at
       </div>
       <BarraCategorias pc={b.porCategoria} />
       {d ? (
-        <div className="destaque">
+        <div className="destaque" title="Abrir ficha" onClick={(ev) => { ev.stopPropagation(); onFicha(d.id); }}>
           <Foto e={d} tam="thumb" />
           <div>
             <small>Em perigo neste bioma</small>
@@ -130,7 +130,7 @@ export interface EscopoGaveta {
   grupoInicial: string;
 }
 
-export function Gaveta({ escopo, onFechar }: { escopo: EscopoGaveta; onFechar: () => void }) {
+export function Gaveta({ escopo, onFechar, onFicha }: { escopo: EscopoGaveta; onFechar: () => void; onFicha: (id: number) => void }) {
   const [categoria, setCategoria] = useState<string>(escopo.categoriaInicial);
   const [grupo, setGrupo] = useState(escopo.grupoInicial);
   const [q, setQ] = useState("");
@@ -165,7 +165,7 @@ export function Gaveta({ escopo, onFechar }: { escopo: EscopoGaveta; onFechar: (
       </div>
       <div className="grade">
         {lista?.map((e) => (
-          <article key={e.id} className="especie">
+          <article key={e.id} className="especie" onClick={() => onFicha(e.id)} title="Abrir ficha">
             <div className="moldura">
               <Foto e={e} tam="media" />
               <Selo cod={e.categoria} />
