@@ -11,9 +11,9 @@ export const api = {
   estados: () => get<EstadoResumo[]>("/api/estados"),
   estado: (uf: string) => get<EstadoDetalhe>(`/api/estados/${uf}`),
   destaque: (uf: string, bioma: number) => get<EspecieCard | null>(`/api/estados/${uf}/biomas/${bioma}/destaque`),
-  especies: (uf: string, bioma: number, f: { categoria?: string; grupo?: string; q?: string }) => {
+  especies: (f: { uf?: string; bioma?: number | null; categoria?: string; grupo?: string; q?: string }) => {
     const p = new URLSearchParams();
-    for (const [k, v] of Object.entries(f)) if (v) p.set(k, v);
-    return get<EspecieCard[]>(`/api/estados/${uf}/biomas/${bioma}/especies?${p}`);
+    for (const [k, v] of Object.entries(f)) if (v) p.set(k, String(v));
+    return get<EspecieCard[]>(`/api/especies?${p}`);
   },
 };

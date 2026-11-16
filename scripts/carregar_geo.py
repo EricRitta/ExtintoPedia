@@ -45,7 +45,9 @@ def exporta(sel, arq):
     (OUT / arq).write_text(fc.strip())
     print(arq, round(len(fc)/1024), "KB")
 
+# mesma tolerância (~400 m) em estados e biomas: bordas coincidem (antes 0,02 x 0,005 desalinhava as linhas)
+TOL = 0.004
 simp = lambda g, t: f"ST_AsGeoJSON(ST_ReducePrecision(ST_SimplifyPreserveTopology({g},{t}),0.001),4)::json"
-exporta(f"SELECT 'Feature' type, json_build_object('uf',sigla,'nome',(SELECT nome FROM estado WHERE sigla=g.sigla)) properties, {simp('geom',0.02)} geometry FROM geo_estado g ORDER BY 2::text", "estados.geojson")
+exporta(f"SELECT 'Feature' type, json_build_object('uf',sigla,'nome',(SELECT nome FROM estado WHERE sigla=g.sigla)) properties, {simp('geom',TOL)} geometry FROM geo_estado g ORDER BY 2::text", "estados.geojson")
 for uf in UF.values():
-    exporta(f"SELECT 'Feature' type, json_build_object('uf',estado,'bioma',bioma,'bioma_id',(SELECT id FROM bioma WHERE nome=g.bioma)) properties, {simp('geom',0.005)} geometry FROM geo_estado_bioma g WHERE estado='{uf}'", f"biomas_{uf}.geojson")
+    exporta(f"SELECT 'Feature' type, json_build_object('uf',estado,'bioma',bioma,'bioma_id',(SELECT id FROM bioma WHERE nome=g.bioma)) properties, {simp('geom',TOL)} geometry FROM geo_estado_bioma g WHERE estado='{uf}'", f"biomas_{uf}.geojson")

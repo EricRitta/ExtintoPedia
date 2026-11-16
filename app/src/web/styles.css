@@ -1,5 +1,6 @@
-:root { --borda: #e3e1d9; --fundo: #faf9f5; --tinta: #23221f; --suave: #6b6a63; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--tinta); }
+:root { --borda: #e3e1d9; --fundo: #faf9f5; --tinta: #23221f; --suave: #6b6a63; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; color: var(--tinta); }
 * { box-sizing: border-box; }
+button, select, input { font: inherit; }
 body { margin: 0; }
 .app { position: fixed; inset: 0; }
 .mapa { position: absolute; inset: 0; }
@@ -19,7 +20,9 @@ h3 { margin: 22px 0 8px; font-size: 12px; text-transform: uppercase; letter-spac
 
 .barra { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: #ddd; margin: 6px 0; }
 .barra span { display: block; height: 100%; }
-.legenda { list-style: none; padding: 0; margin: 8px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3px 10px; font-size: 13px; }
+.legenda { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 2px; font-size: 14px; }
+.legenda li { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; border-radius: 8px; }
+.legenda li.clicavel { cursor: pointer; } .legenda li.clicavel:hover { background: #eeece4; }
 .legenda i, .ponto { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
 .grupos { list-style: none; padding: 0; margin: 0; font-size: 14px; } .grupos li { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed var(--borda); }
 
@@ -45,11 +48,14 @@ h3 { margin: 22px 0 8px; font-size: 12px; text-transform: uppercase; letter-spac
 .filtros select, .filtros input { padding: 7px 10px; border: 1px solid var(--borda); border-radius: 8px; font-size: 14px; background: #fff; }
 .grade { overflow: auto; padding: 4px 18px 18px; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; align-content: start; grid-auto-rows: max-content; flex: 1; min-height: 0; }
 .especie { background: #fff; border: 1px solid var(--borda); border-radius: 12px; overflow: hidden; }
+.moldura { position: relative; } .moldura .selo { position: absolute; top: 8px; left: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
 .especie .foto { width: 100%; aspect-ratio: 4/3; }
 .especie .foto.vazia { font-size: 44px; }
-.especie .info { padding: 8px 10px 10px; } .especie .nome { font-weight: 600; font-size: 14px; }
-.especie .nome em { font-weight: 500; text-transform: none; }
-.meta { display: flex; gap: 6px; align-items: center; margin-top: 4px; } .meta small { color: var(--suave); }
+.especie .info { padding: 9px 11px 11px; }
+.especie .cientifico { font-weight: 700; font-size: 14px; font-style: italic; line-height: 1.25; }
+.especie .popular { color: #8a897f; font-size: 13px; margin-top: 2px; }
+.especie .popular::first-letter { text-transform: uppercase; }
+.especie .tipo { color: var(--suave); font-size: 12px; margin-top: 5px; }
 
 @media (max-width: 900px) { .painel { width: auto; left: 12px; top: auto; height: 45vh; } .gaveta { right: 12px; height: 60vh; } }
 

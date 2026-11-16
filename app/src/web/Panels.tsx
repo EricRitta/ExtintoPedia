@@ -15,11 +15,13 @@ function BarraCategorias({ pc }: { pc: PorCategoria }) {
   );
 }
 
-function Legenda({ pc }: { pc: PorCategoria }) {
+function Legenda({ pc, onCategoria }: { pc: PorCategoria; onCategoria?: (c: CategoriaCodigo) => void }) {
   return (
     <ul className="legenda">
       {CATEGORIAS.filter((c) => pc[c.cod] > 0).map((c) => (
-        <li key={c.cod}><i style={{ background: c.cor }} />{c.nome} <b>{pc[c.cod]}</b></li>
+        <li key={c.cod} className={onCategoria ? "clicavel" : ""} onClick={() => onCategoria?.(c.cod)} title={onCategoria ? `Ver espécies: ${c.nome}` : undefined}>
+          <span><i style={{ background: c.cor }} />{c.nome}</span><b>{pc[c.cod]}</b>
+        </li>
       ))}
     </ul>
   );
@@ -39,7 +41,7 @@ function Foto({ e, tam }: { e: EspecieCard; tam: "media" | "thumb" }) {
 const nomeDe = (e: EspecieCard) => (e.temNomePopular ? <span>{e.nome}</span> : <em>{e.nome}</em>);
 
 // ---- painel inicial ------------------------------------------------------------------------------
-export function BrasilPanel({ estados, onEstado }: { estados: EstadoResumo[]; onEstado: (uf: string) => void }) {
+export function BrasilPanel({ estados, onEstado, onCategoria }: { estados: EstadoResumo[]; onEstado: (uf: string) => void; onCategoria: (c: CategoriaCodigo) => void }) {
   const [br, setBr] = useState<BrasilResumo | null>(null);
   useEffect(() => { api.brasil().then(setBr); }, []);
   const ranking = [...estados].sort((a, b) => b.ameacadas - a.ameacadas).slice(0, 8);
@@ -51,7 +53,7 @@ export function BrasilPanel({ estados, onEstado }: { estados: EstadoResumo[]; on
         <>
           <p className="sub"><b>{br.total}</b> espécies no total · <b>{br.ameacadas}</b> ameaçadas</p>
           <BarraCategorias pc={br.porCategoria} />
-          <Legenda pc={br.porCategoria} />
+          <Legenda pc={br.porCategoria} onCategoria={onCategoria} />
         </>
       )}
       <p className="dica">Clique em um estado do mapa.</p>
@@ -69,8 +71,8 @@ export function BrasilPanel({ estados, onEstado }: { estados: EstadoResumo[]; on
 }
 
 // ---- painel do estado ----------------------------------------------------------------------------
-export function EstadoPanel({ detalhe, onVoltar, onBioma, biomaId }: {
-  detalhe: EstadoDetalhe | null; onVoltar: () => void; onBioma: (id: number) => void; biomaId: number | null;
+export function EstadoPanel({ detalhe, onVoltar, onBioma, biomaId, onCategoria }: {
+  detalhe: EstadoDetalhe | null; onVoltar: () => void; onBioma: (id: number) => void; biomaId: number | null; onCategoria: (c: CategoriaCodigo) => void;
 }) {
   if (!detalhe) return <div className="conteudo"><button className="voltar" onClick={onVoltar}>← Brasil</button><p>Carregando…</p></div>;
   return (
@@ -79,7 +81,7 @@ export function EstadoPanel({ detalhe, onVoltar, onBioma, biomaId }: {
       <h1>{detalhe.nome}</h1>
       <p className="sub">{detalhe.regiao} · <b>{detalhe.total}</b> espécies ameaçadas ou extintas</p>
       <BarraCategorias pc={detalhe.porCategoria} />
-      <Legenda pc={detalhe.porCategoria} />
+      <Legenda pc={detalhe.porCategoria} onCategoria={onCategoria} />
       <h3>Por tipo de animal</h3>
       <ul className="grupos">
         {detalhe.porGrupo.map((g) => (
@@ -119,43 +121,58 @@ function CartaoBioma({ uf, b, ativo, onAbrir }: { uf: string; b: BiomaResumo; at
 }
 
 // ---- gaveta com a lista --------------------------------------------------------------------------
-export function Gaveta({ uf, estado, bioma, grupos, onFechar }: { uf: string; estado: string; bioma: BiomaResumo; grupos: string[]; onFechar: () => void }) {
-  const [categoria, setCategoria] = useState("");
+export interface EscopoGaveta {
+  uf: string | null; // null = Brasil inteiro
+  titulo: string;
+  biomaId: number | null; // null = estado inteiro (ou Brasil)
+  porCategoria: PorCategoria;
+  categoriaInicial: CategoriaCodigo | "";
+}
+
+export function Gaveta({ escopo, onFechar }: { escopo: EscopoGaveta; onFechar: () => void }) {
+  const [categoria, setCategoria] = useState<string>(escopo.categoriaInicial);
   const [grupo, setGrupo] = useState("");
   const [q, setQ] = useState("");
   const [lista, setLista] = useState<EspecieCard[] | null>(null);
 
-  useEffect(() => { setCategoria(""); setGrupo(""); setQ(""); }, [uf, bioma.id]);
+  // novo escopo (outro bioma, outro filtro vindo da legenda): reinicia os filtros
+  useEffect(() => { setCategoria(escopo.categoriaInicial); setGrupo(""); setQ(""); }, [escopo.uf, escopo.biomaId, escopo.categoriaInicial]);
   useEffect(() => {
     setLista(null);
-    const t = setTimeout(() => { api.especies(uf, bioma.id, { categoria, grupo, q: q.trim() }).then(setLista); }, q ? 250 : 0);
+    const t = setTimeout(() => {
+      api.especies({ uf: escopo.uf ?? undefined, bioma: escopo.biomaId, categoria, grupo, q: q.trim() }).then(setLista);
+    }, q ? 250 : 0);
     return () => clearTimeout(t);
-  }, [uf, bioma.id, categoria, grupo, q]);
+  }, [escopo.uf, escopo.biomaId, categoria, grupo, q]);
 
   return (
     <section className="gaveta">
       <header>
-        <div><h2>{bioma.nome} · {estado}</h2><small>{lista ? `${lista.length} espécies` : "…"}</small></div>
+        <div><h2>{escopo.titulo}</h2><small>{lista ? `${lista.length} ${lista.length === 1 ? "espécie" : "espécies"}` : "…"}</small></div>
         <button onClick={onFechar} aria-label="Fechar">✕</button>
       </header>
       <div className="filtros">
         <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
           <option value="">Todas as categorias</option>
-          {CATEGORIAS.filter((c) => bioma.porCategoria[c.cod] > 0).map((c) => <option key={c.cod} value={c.cod}>{c.nome} ({bioma.porCategoria[c.cod]})</option>)}
+          {CATEGORIAS.filter((c) => escopo.porCategoria[c.cod] > 0).map((c) => <option key={c.cod} value={c.cod}>{c.nome} ({escopo.porCategoria[c.cod]})</option>)}
         </select>
         <select value={grupo} onChange={(e) => setGrupo(e.target.value)}>
           <option value="">Todos os tipos de animal</option>
-          {grupos.map((g) => <option key={g} value={g}>{ICONE_GRUPO[g]} {g}</option>)}
+          {Object.keys(ICONE_GRUPO).map((g) => <option key={g} value={g}>{ICONE_GRUPO[g]} {g}</option>)}
         </select>
         <input placeholder="Buscar nome…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       <div className="grade">
         {lista?.map((e) => (
           <article key={e.id} className="especie">
-            <Foto e={e} tam="media" />
+            <div className="moldura">
+              <Foto e={e} tam="media" />
+              <Selo cod={e.categoria} />
+            </div>
             <div className="info">
-              <div className="nome">{nomeDe(e)}</div>
-              <div className="meta"><Selo cod={e.categoria} /><small>{e.grupo}</small></div>
+              <div className="cientifico">{e.cientifico}</div>
+              {e.temNomePopular && <div className="popular">{e.nome}</div>}
+              <div className="tipo">{ICONE_GRUPO[e.grupo]} {e.grupo}</div>
             </div>
           </article>
         ))}

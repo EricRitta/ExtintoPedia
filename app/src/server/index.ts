@@ -103,18 +103,23 @@ app.get<{ Params: { uf: string } }>("/api/estados/:uf", async (req, rep): Promis
 app.get<{ Params: { uf: string; id: string } }>("/api/estados/:uf/biomas/:id/destaque", async (req) =>
   destaque(req.params.uf.toUpperCase(), Number(req.params.id)));
 
-app.get<{ Params: { uf: string; id: string }; Querystring: { categoria?: string; grupo?: string; q?: string } }>(
-  "/api/estados/:uf/biomas/:id/especies",
+// Lista de espécies: Brasil (sem uf), estado (uf) ou bioma de um estado (uf + bioma). Cada espécie aparece uma vez.
+app.get<{ Querystring: { uf?: string; bioma?: string; categoria?: string; grupo?: string; q?: string } }>(
+  "/api/especies",
   async (req) => {
-    const { categoria, grupo, q } = req.query;
+    const { uf, bioma, categoria, grupo, q } = req.query;
+    const escopo = uf && bioma
+      ? sql`AND s.id IN (SELECT especie_id FROM especie_estado_bioma WHERE estado = ${uf.toUpperCase()} AND bioma_id = ${Number(bioma)})`
+      : uf
+        ? sql`AND s.id IN (SELECT especie_id FROM especie_estado WHERE estado = ${uf.toUpperCase()})`
+        : sql``;
     const rows = await sql`
       SELECT ${CAMPOS_CARD} ${JOIN_CARD}
-      JOIN especie_estado_bioma x ON x.especie_id = s.id
-      WHERE x.estado = ${req.params.uf.toUpperCase()} AND x.bioma_id = ${Number(req.params.id)}
+      WHERE true ${escopo}
         ${categoria ? sql`AND s.categoria = ${categoria}` : sql``}
         ${grupo ? sql`AND g.nome = ${grupo}` : sql``}
-        ${q ? sql`AND (s.nome_cientifico ILIKE ${"%" + q + "%"} OR s.nome_comum ILIKE ${"%" + q + "%"})` : sql``}
-      ORDER BY (i.especie_id IS NULL), c.ordem, s.nome_comum NULLS LAST, s.nome_cientifico`;
+        ${q ? sql`AND (s.nome_comum ILIKE ${"%" + q + "%"} OR s.nome_cientifico ILIKE ${"%" + q + "%"})` : sql``}
+      ORDER BY (i.especie_id IS NULL), c.ordem, s.nome_cientifico`;
     return rows.map(card);
   });
 

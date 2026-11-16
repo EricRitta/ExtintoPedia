@@ -1,8 +1,8 @@
 # ExtintoPedia
 
 Mapa interativo das espécies ameaçadas e extintas do Brasil (fonte: SALVE/ICMBio). Só roda em localhost: nada de complexidade de produção.
-Fluxo da tela: Brasil (cor = nº de espécies) → clica no estado (zoom, biomas recortados, animal aleatório por bioma) → clica no bioma (lista com filtros).
-Regra do projeto: os animais **sempre** aparecem com imagem e **nome popular** (científico só quando não há popular, em itálico).
+Fluxo da tela: Brasil (cor = nº de espécies) → clica no estado (zoom, biomas recortados, animal aleatório por bioma) → clica no bioma (lista com filtros). Clicar numa categoria da legenda (Brasil ou estado) abre a lista filtrada.
+Regra do projeto: os animais aparecem com imagem. Cartões do mapa/bioma usam nome popular; nos cartões da lista, o científico vem em destaque e o popular em cinza abaixo.
 
 ## Como rodar
 - Banco: **só em Docker** (nunca instalar Postgres local). `docker compose up -d` (PostGIS, porta 5433, usuário/db `extinto`/`extintopedia`).
@@ -27,11 +27,9 @@ TypeScript em tudo no `app/` (Fastify + React/Vite + MapLibre, sem mapa-base, s�
 - Imagens são geradas localmente (600 px e 160 px) a partir do `/full` do SALVE: as versões `small`/`thumb` da API nem sempre existem.
 - Sistema Costeiro-Marinho não tem polígono (shapefile só tem os 6 biomas terrestres): aparece só como cartão nos estados litorâneos.
 
-## Pendências de interface (capturas em `prints/`)
-- Fonte dos cartões sai monoespaçada no navegador do dono (`system-ui` não resolve): definir pilha de fontes explícita.
-- Legenda de categorias quebra linha e deixa o número órfão ("Criticamente em perigo / 361").
-- A borda preta do estado (malha IBGE "intermediária") não alinha com as bordas dos biomas (1:250.000): aparecem lascas. Usar a mesma fonte/precisão, ou desenhar a borda a partir da união dos biomas.
-- A gaveta da lista cobre o estado no mapa: ajustar o enquadramento quando abre.
+## Interface: feito e pendente
+- Feito: estados e biomas exportados com a mesma tolerância (`TOL` em `scripts/carregar_geo.py`) para as bordas alinharem; legenda clicável (abre a lista já filtrada por categoria, no Brasil ou no estado); cartões da lista com nome científico, popular em cinza e tipo; pilha de fontes explícita.
+- Pendente: a gaveta da lista cobre o estado no mapa (ajustar o enquadramento quando abre).
 
 ## Convenções
 - Git: branch `main`. `node_modules`, `.venv`, logs e arquivos do banco ficam no `.gitignore`; o conteúdo do banco está em `db/backup/` e os dados brutos da API em `data/`.
