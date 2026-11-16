@@ -9,6 +9,7 @@ interface Props {
   estados: EstadoResumo[];
   uf: string | null;
   biomaId: number | null;
+  painelAberto: boolean;
   onEstado: (uf: string | null) => void;
   onBioma: (id: number | null) => void;
 }
@@ -26,22 +27,28 @@ function bbox(fc: GeoJSON.FeatureCollection): [Pos, Pos] {
 
 maplibregl.setWorkerUrl(workerUrl);
 
-// reserva espaço para o painel: à direita no desktop, embaixo (45vh) no celular
-const margem = (extra = 20) => {
+// reserva espaço para o painel (só se estiver aberto): à direita no desktop, embaixo (45%) no celular
+const margem = (m: MLMap | null, painelAberto: boolean, extra = 20) => {
+  const h = m?.getContainer().clientHeight ?? window.innerHeight;
   const cel = window.innerWidth <= 900;
-  return cel ? { top: extra, left: extra, right: extra, bottom: Math.round(window.innerHeight * 0.45) + extra } : { top: extra, bottom: extra, left: extra, right: 440 + (extra > 20 ? 20 : 0) };
+  if (!painelAberto) return { top: extra, bottom: extra, left: extra, right: extra };
+  return cel
+    ? { top: extra, left: extra, right: extra, bottom: Math.round(h * 0.45) + extra }
+    : { top: extra, bottom: extra, left: extra, right: 440 + (extra > 20 ? 20 : 0) };
 };
 
 const BRASIL: [Pos, Pos] = [[-74, -34], [-34, 5.5]];
 const VAZIO: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
-export function MapView({ estados, uf, biomaId, onEstado, onBioma }: Props) {
+export function MapView({ estados, uf, biomaId, painelAberto, onEstado, onBioma }: Props) {
   const el = useRef<HTMLDivElement>(null);
   const mapa = useRef<MLMap | null>(null);
   const pronto = useRef(false);
   const geoEstados = useRef<GeoJSON.FeatureCollection | null>(null);
-  const cb = useRef({ onEstado, onBioma, uf });
-  cb.current = { onEstado, onBioma, uf };
+  const cb = useRef({ onEstado, onBioma, uf, painelAberto });
+  cb.current = { onEstado, onBioma, uf, painelAberto };
+  // último alvo do enquadramento (para reenquadrar quando o painel abre/fecha)
+  const alvo = useRef<{ bounds: [Pos, Pos]; extra: number }>({ bounds: [[-74, -34], [-34, 5.5]], extra: 20 });
 
   // cria o mapa uma vez (sem mapa-base: só os polígonos do IBGE)
   useEffect(() => {
@@ -49,8 +56,8 @@ export function MapView({ estados, uf, biomaId, onEstado, onBioma }: Props) {
       container: el.current!,
       style: { version: 8, sources: {}, layers: [{ id: "fundo", type: "background", paint: { "background-color": "#cfe3ee" } }] },
       bounds: BRASIL,
-      fitBoundsOptions: { padding: margem() },
-      attributionControl: { compact: true, customAttribution: "Malhas: IBGE" },
+      fitBoundsOptions: { padding: margem(null, cb.current.painelAberto) },
+      attributionControl: false, // créditos ficam no rodapé (Rodape.tsx)
       dragRotate: false,
     });
     mapa.current = m;
@@ -125,16 +132,23 @@ export function MapView({ estados, uf, biomaId, onEstado, onBioma }: Props) {
       m.setPaintProperty("estados-fill", "fill-opacity", uf ? ["case", ["==", ["get", "uf"], uf], 0.5, 0.35] : 0.9);
       if (!uf) {
         (m.getSource("biomas") as GeoJSONSource).setData(VAZIO);
-        m.fitBounds(BRASIL, { padding: margem(), duration: 700 });
+        alvo.current = { bounds: BRASIL, extra: 20 };
+        m.fitBounds(BRASIL, { padding: margem(m, cb.current.painelAberto), duration: 700 });
         return;
       }
       const fc: GeoJSON.FeatureCollection = await (await fetch(`/geo/biomas_${uf}.geojson`)).json();
       if (cb.current.uf !== uf) return;
       (m.getSource("biomas") as GeoJSONSource).setData(fc);
       const est = geoEstados.current!.features.filter((f) => f.properties!.uf === uf);
-      m.fitBounds(bbox({ type: "FeatureCollection", features: est }), { padding: margem(40), duration: 800 });
+      alvo.current = { bounds: bbox({ type: "FeatureCollection", features: est }), extra: 40 };
+      m.fitBounds(alvo.current.bounds, { padding: margem(m, cb.current.painelAberto, 40), duration: 800 });
     });
   }, [uf]);
+
+  // painel abriu/fechou: reenquadra o alvo atual com a nova margem
+  useEffect(() => {
+    quandoPronto((m) => m.fitBounds(alvo.current.bounds, { padding: margem(m, painelAberto, alvo.current.extra), duration: 450 }));
+  }, [painelAberto]);
 
   useEffect(() => {
     quandoPronto((m) => m.setFilter("biomas-sel", ["==", ["get", "bioma_id"], biomaId ?? -1]));

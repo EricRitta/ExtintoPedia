@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import type { BrasilResumo, CategoriaCodigo, EstadoDetalhe, EstadoResumo } from "../shared/types.ts";
 import { api } from "./api.ts";
 import { MapView } from "./MapView.tsx";
+import { BarraTopo } from "./BarraTopo.tsx";
 import { Ficha } from "./Ficha.tsx";
+import { Rodape } from "./Rodape.tsx";
 import { BrasilPanel, EstadoPanel, Gaveta, type EscopoGaveta } from "./Panels.tsx";
 
 export function App() {
@@ -10,6 +12,8 @@ export function App() {
   const [uf, setUf] = useState<string | null>(null);
   const [detalhe, setDetalhe] = useState<EstadoDetalhe | null>(null);
   const [biomaId, setBiomaId] = useState<number | null>(null);
+  // painel lateral: aberto no desktop, fechado no celular; abrir um estado o abre
+  const [painelAberto, setPainelAberto] = useState(() => window.innerWidth > 900);
   const [fichaId, setFichaId] = useState<number | null>(null);
   const [brasil, setBrasil] = useState<BrasilResumo | null>(null);
   // lista aberta por clique na legenda ou na lista de tipos (estado/Brasil inteiro, já filtrada)
@@ -20,6 +24,7 @@ export function App() {
     setDetalhe(null);
     setBiomaId(null);
     setFiltro(null);
+    if (uf) setPainelAberto(true);
     if (uf) api.estado(uf).then(setDetalhe);
   }, [uf]);
 
@@ -36,16 +41,20 @@ export function App() {
   else if (filtro && !uf && brasil) escopo = { uf: null, titulo: "Brasil", biomaId: null, porCategoria: brasil.porCategoria, categoriaInicial: filtro.categoria, grupoInicial: filtro.grupo };
 
   return (
-    <div className="app">
-      <MapView estados={estados} uf={uf} biomaId={biomaId} onEstado={setUf} onBioma={escolheBioma} />
-      <aside className="painel">
-        {uf ? (
-          <EstadoPanel detalhe={detalhe} onVoltar={() => setUf(null)} onBioma={escolheBioma} biomaId={biomaId} onCategoria={escolheCategoria} onGrupo={escolheGrupo} onFicha={setFichaId} />
-        ) : (
-          <BrasilPanel estados={estados} onEstado={setUf} onCategoria={escolheCategoria} />
-        )}
-      </aside>
-      {escopo && <Gaveta escopo={escopo} onFechar={() => { setBiomaId(null); setFiltro(null); }} onFicha={setFichaId} />}
+    <div className={`app ${painelAberto ? "" : "sem-painel"}`}>
+      <BarraTopo painelAberto={painelAberto} onAlternar={() => setPainelAberto((a) => !a)} />
+      <div className="palco">
+        <MapView estados={estados} uf={uf} biomaId={biomaId} painelAberto={painelAberto} onEstado={setUf} onBioma={escolheBioma} />
+        <aside className="painel">
+          {uf ? (
+            <EstadoPanel detalhe={detalhe} onVoltar={() => setUf(null)} onBioma={escolheBioma} biomaId={biomaId} onCategoria={escolheCategoria} onGrupo={escolheGrupo} onFicha={setFichaId} />
+          ) : (
+            <BrasilPanel estados={estados} onEstado={setUf} onCategoria={escolheCategoria} />
+          )}
+        </aside>
+        {escopo && <Gaveta escopo={escopo} onFechar={() => { setBiomaId(null); setFiltro(null); }} onFicha={setFichaId} />}
+        <Rodape total={brasil?.total ?? null} />
+      </div>
       {fichaId !== null && <Ficha id={fichaId} onFechar={() => setFichaId(null)} />}
     </div>
   );

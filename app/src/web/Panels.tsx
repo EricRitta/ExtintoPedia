@@ -47,8 +47,8 @@ export function BrasilPanel({ estados, onEstado, onCategoria }: { estados: Estad
   const ranking = [...estados].sort((a, b) => b.ameacadas - a.ameacadas).slice(0, 10);
   return (
     <div className="conteudo">
-      <h1>ExtintoPedia</h1>
-      <p className="sub">Espécies ameaçadas e extintas do Brasil, por estado e bioma. Fonte: SALVE / ICMBio.</p>
+      <h1>Brasil</h1>
+      <p className="sub">Espécies ameaçadas e extintas, por estado e bioma. Fonte: SALVE / ICMBio.</p>
       {br && (
         <>
           <p className="sub"><b>{br.total}</b> espécies no total · <b>{br.ameacadas}</b> ameaçadas</p>

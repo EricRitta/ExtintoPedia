@@ -2,8 +2,30 @@
 * { box-sizing: border-box; }
 button, select, input { font: inherit; }
 body { margin: 0; }
-.app { position: fixed; inset: 0; }
+.app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+.palco { position: relative; flex: 1; min-height: 0; overflow: hidden; }
 .mapa { position: absolute; inset: 0; }
+
+/* barra superior */
+.barra-topo { flex: none; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 16px; background: var(--fundo); border-bottom: 1px solid var(--borda); position: relative; z-index: 5; }
+.marca { display: flex; align-items: center; gap: 10px; } .marca b { display: block; font-size: 18px; line-height: 1.1; } .marca small { display: block; color: var(--suave); font-size: 12px; }
+.logo { display: inline-flex; }
+.hamburguer { border: 1px solid var(--borda); background: #fff; border-radius: 10px; width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--tinta); }
+.hamburguer:hover { background: #eeece4; }
+@media (max-width: 600px) { .marca small { display: none; } }
+
+/* painel recolhível */
+.painel { transition: transform .25s ease, opacity .25s ease; }
+.sem-painel .painel { transform: translateX(calc(100% + 24px)); opacity: 0; pointer-events: none; }
+.sem-painel .gaveta { right: 12px; }
+
+/* rodapé flutuante: seta no centro, embaixo; ao clicar sobe a folha */
+.rodape { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: min(760px, calc(100% - 24px)); z-index: 6; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+.rodape > * { pointer-events: auto; }
+.rodape-seta { width: 56px; height: 20px; border: 0; border-radius: 10px 10px 0 0; background: var(--fundo); box-shadow: 0 -2px 8px rgba(0,0,0,.25); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--suave); padding: 0; }
+.rodape-seta:hover { color: var(--tinta); } .rodape-seta svg { transition: transform .2s; } .rodape-seta.aberto svg { transform: rotate(180deg); }
+.rodape-folha { width: 100%; background: var(--fundo); border-radius: 14px 14px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,.3); padding: 16px 20px 14px; max-height: 60vh; overflow: auto; animation: sobe .25s ease-out; font-size: 14px; line-height: 1.5; }
+.rodape-folha h2 { margin: 0 0 8px; font-size: 16px; } .rodape-folha ul { margin: 0; padding-left: 18px; } .rodape-folha li { margin-bottom: 6px; } .rodape-folha a { color: #0b5cad; }
 .maplibregl-popup-content { font-size: 13px; padding: 8px 10px; }
 
 .painel { position: absolute; top: 12px; right: 12px; bottom: 12px; width: 410px; background: var(--fundo); border-radius: 14px; box-shadow: 0 6px 30px rgba(0,0,0,.25); overflow: auto; z-index: 2; }
@@ -60,7 +82,7 @@ h3 { margin: 22px 0 8px; font-size: 12px; text-transform: uppercase; letter-spac
 .especie .popular::first-letter { text-transform: uppercase; }
 .especie .tipo { color: var(--suave); font-size: 12px; margin-top: 5px; }
 
-@media (max-width: 900px) { .painel { width: auto; left: 12px; top: auto; height: 45vh; } .gaveta { right: 12px; } .grade { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 4px 12px 14px; } .filtros { padding: 10px 12px; } .gaveta header { padding: 10px 14px; } }
+@media (max-width: 900px) { .painel { width: auto; left: 12px; top: auto; height: 45%; } .sem-painel .painel { transform: translateY(calc(100% + 24px)); } .gaveta { right: 12px; } .grade { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 4px 12px 14px; } .filtros { padding: 10px 12px; } .gaveta header { padding: 10px 14px; } }
 
 .nome > span:first-child { display: inline-block; } .nome > span:first-child::first-letter { text-transform: uppercase; }
 
