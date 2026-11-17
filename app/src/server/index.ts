@@ -160,7 +160,9 @@ app.get<{ Params: { id: string } }>("/api/especies/:id/extras", async (req, rep)
   if (!e) return rep.code(404).send({ erro: "espécie não encontrada" });
   const nome: string = e.nome_cientifico;
   const [cache] = await sql`SELECT conteudo FROM ficha_extra WHERE nome_cientifico = ${nome}`;
-  if (cache) return cache.conteudo as FichaExtras;
+  // cache vale só se o arquivo do mapa ainda existe (a pasta data/mapas não vai pro git): senão busca de novo
+  const mapaCache: string | null = cache?.conteudo?.mapa ?? null;
+  if (cache && (!mapaCache || existsSync(path.join(dirMapas, path.basename(mapaCache))))) return cache.conteudo as FichaExtras;
   try {
     let p = emAndamento.get(nome);
     if (!p) {

@@ -24,3 +24,6 @@ data/geo/*.zip
 
 # capturas de tela
 prints/
+
+# mapas de distribuição: baixados sob demanda da SALVE ao abrir a ficha
+data/mapas/

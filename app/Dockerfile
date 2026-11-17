@@ -16,7 +16,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /srv/app/dist ./dist
 COPY src ./src
 COPY tsconfig.json ./
-RUN mkdir -p /srv/data && chown node:node /srv/data
+RUN mkdir -p /srv/data/mapas && chown -R node:node /srv/data
 USER node
 EXPOSE 3001
 CMD ["npm", "start"]

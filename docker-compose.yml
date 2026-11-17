@@ -31,6 +31,8 @@ services:
     ports:
       - "127.0.0.1:5173:3001"
     volumes:
-      - ./data:/srv/data   # imagens e mapas (a API grava mapas aqui sob demanda)
+      - ./data:/srv/data   # imagens do pipeline (leitura)
+      - mapas:/srv/data/mapas   # mapas baixados sob demanda: ficam só no container, não na máquina
 volumes:
   pgdata:
+  mapas:
