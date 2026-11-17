@@ -70,7 +70,7 @@ export function MapView({ estados, uf, biomaId, painelAberto, onEstado, onBioma 
       m.addLayer({
         id: "estados-fill", type: "fill", source: "estados",
         paint: {
-          "fill-color": ["interpolate", ["linear"], ["coalesce", ["get", "total"], 0], 0, "#f1eee6", 40, "#fdd49e", 120, "#fc8d59", 250, "#d7301f", 400, "#7f0000"],
+          "fill-color": ["interpolate", ["linear"], ["coalesce", ["get", "total"], 0], 0, "#f8fbf6", 40, "#c3dcbc", 120, "#67955f", 250, "#3c6a45", 400, "#12402b"],
           "fill-opacity": 0.9,
         },
       });

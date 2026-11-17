@@ -7,12 +7,16 @@ body { margin: 0; }
 .mapa { position: absolute; inset: 0; }
 
 /* barra superior */
-.barra-topo { flex: none; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 16px; background: var(--fundo); border-bottom: 1px solid var(--borda); position: relative; z-index: 5; }
-.marca { display: flex; align-items: center; gap: 10px; } .marca b { display: block; font-size: 18px; line-height: 1.1; } .marca small { display: block; color: var(--suave); font-size: 12px; }
-.logo { display: inline-flex; }
+.barra-topo { flex: none; height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 16px; background: var(--fundo); border-bottom: 1px solid var(--borda); position: relative; z-index: 5; }
+.marca { margin: 0; font-size: inherit; font-weight: inherit; display: flex; }
+/* arara (verde da marca) com a ponta da cauda ao lado do "E"; o corpo fica sobre as primeiras letras */
+.logo { display: inline-flex; align-items: flex-end; --arara: 64px; }
+.logo-arara { height: var(--arara); width: auto; display: block; position: relative; z-index: 1; }
+.logo-nome { margin-left: calc(var(--arara) * -0.3); font-size: calc(var(--arara) * 0.52); font-weight: 800; line-height: 1; letter-spacing: -.01em; color: #111; padding-bottom: calc(var(--arara) * .02); }
+.logo-nome span { color: #67955f; }
 .hamburguer { border: 1px solid var(--borda); background: #fff; border-radius: 10px; width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--tinta); }
 .hamburguer:hover { background: #eeece4; }
-@media (max-width: 600px) { .marca small { display: none; } }
+@media (max-width: 600px) { .barra-topo { height: 64px; } .logo { --arara: 50px; } }
 
 /* painel recolhível */
 .painel { transition: transform .25s ease, opacity .25s ease; }
@@ -38,8 +42,8 @@ h3 { margin: 22px 0 8px; font-size: 12px; text-transform: uppercase; letter-spac
 .voltar { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; border: 0; border-radius: 10px; padding: 11px 14px; background: #23221f; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
 .voltar:hover { background: #000; } .voltar span { font-size: 18px; line-height: 1; }
 .escala { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--suave); margin: 14px 0; }
-.escala i { flex: 1; height: 10px; border-radius: 5px; background: linear-gradient(90deg, #f1eee6, #fdd49e, #fc8d59, #d7301f, #7f0000); }
-.ranking { padding-left: 20px; margin: 0; } .ranking li { padding: 5px 0; cursor: pointer; } .ranking li:hover { color: #b30000; }
+.escala i { flex: 1; height: 10px; border-radius: 5px; background: linear-gradient(90deg, #f8fbf6, #c3dcbc, #67955f, #3c6a45, #12402b); }
+.ranking { padding-left: 20px; margin: 0; } .ranking li { padding: 5px 0; cursor: pointer; } .ranking li:hover { color: #12402b; }
 .ranking li b { float: right; }
 
 .barra { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: #ddd; margin: 6px 0; }
