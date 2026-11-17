@@ -5,10 +5,11 @@ Fluxo da tela: Brasil (cor = nº de espécies) → clica no estado (zoom, biomas
 Regra do projeto: os animais aparecem com imagem. Cartões do mapa/bioma usam nome popular; nos cartões da lista, o científico vem em destaque e o popular em cinza abaixo.
 
 ## Como rodar
-- Banco: **só em Docker** (nunca instalar Postgres local). `docker compose up -d` (PostGIS, porta 5433, usuário/db `extinto`/`extintopedia`).
-- App: `cd app && npm install && npm run dev` → http://localhost:5173 (API Fastify em :3001).
-- Python do pipeline: `.venv/bin/python` (Pillow, pyshp). Ordem dos scripts: ver `README.md`.
-- Restaurar o banco (se o volume do Docker for apagado, ex.: `docker compose down -v`): `docker compose up -d && scripts/restaurar_db.sh`. Refazer o backup depois de mudanças no banco: `docker exec extintopedia-db pg_dump -U extinto -d extintopedia --no-owner | gzip -9 > db/backup/extintopedia.sql.gz`.
+- **Tudo em Docker (jeito padrão, sem `node_modules` no host):** `docker compose up -d --build` → http://localhost:5173. Sobe o banco (PostGIS, porta 5433, `extinto`/`extintopedia`) e o app (um container só: Fastify serve a API e o front já compilado; porta 3001 interna, publicada como 5173). Com o volume do banco vazio (1ª vez ou `docker compose down -v`), o Postgres **restaura sozinho** `db/backup/extintopedia.sql.gz` (montado em `/docker-entrypoint-initdb.d`). Mudou código do `app/`? `docker compose up -d --build`. `./data` é montado em `/srv/data` (imagens e mapas; a API grava mapas lá).
+- Postgres: **só em Docker** (nunca instalar local). O healthcheck usa `-h 127.0.0.1` de propósito: assim o banco só fica "healthy" depois da restauração.
+- Dev com hot reload (opcional, precisa de `node_modules` no host): `docker compose up -d db && cd app && npm install && npm run dev` → http://localhost:5173 (Vite) com API em :3001. Não rode junto com o container `app` (mesma porta 5173).
+- Python do pipeline: `.venv/bin/python` (Pillow, pyshp), roda no host. Ordem dos scripts: ver `README.md`.
+- Restaurar na mão (banco já existente): `scripts/restaurar_db.sh`. Refazer o backup depois de mudanças no banco: `docker exec extintopedia-db pg_dump -U extinto -d extintopedia --no-owner | gzip -9 > db/backup/extintopedia.sql.gz`.
 
 ## Stack
 TypeScript em tudo no `app/` (Fastify + React/Vite + MapLibre, sem mapa-base, só polígonos do IBGE). Pipeline de dados em Python em `scripts/`.

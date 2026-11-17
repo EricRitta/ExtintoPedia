@@ -14,6 +14,7 @@ Os IDs de ficha da API expiram no mesmo dia: rode 3 de uma vez.
 
 ## App (localhost)
 `app/` = TypeScript: Fastify (API, :3001) + React/Vite + MapLibre (:5173). Banco: ver acima (container).
-- `cd app && npm install && npm run dev` → http://localhost:5173
+- `docker compose up -d --build` → http://localhost:5173 (banco restaurado do backup + app, tudo em container)
+- Dev com hot reload: `docker compose up -d db && cd app && npm install && npm run dev` (não junto com o container `app`)
 - Geometria: `.venv/bin/python scripts/carregar_geo.py` (estados + biomas do IBGE → PostGIS → app/public/geo/*.geojson)
 - Tela: Brasil (cor = nº de espécies) → clica no estado (zoom + biomas recortados + animal aleatório por bioma, sempre com foto) → clica no bioma (lista com filtros).

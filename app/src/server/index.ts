@@ -9,7 +9,10 @@ import type { BiomaResumo, BrasilResumo, FichaExtras, FichaLocal, CategoriaCodig
 
 const aqui = path.dirname(fileURLToPath(import.meta.url));
 const raiz = path.resolve(aqui, "../../..");
-const sql = postgres({ host: "localhost", port: 5433, user: "extinto", password: "extinto_dev", database: "extintopedia" });
+const sql = postgres({
+  host: process.env.DB_HOST ?? "localhost", port: Number(process.env.DB_PORT ?? 5433),
+  user: "extinto", password: "extinto_dev", database: "extintopedia",
+});
 
 const CATS: CategoriaCodigo[] = ["EX", "EW", "RE", "CR", "EN", "VU"];
 const vazio = (): PorCategoria => ({ EX: 0, EW: 0, RE: 0, CR: 0, EN: 0, VU: 0 });
@@ -179,5 +182,6 @@ await app.register(fastifyStatic, { root: dirMapas, prefix: "/mapas/", decorateR
 const dist = path.resolve(aqui, "../../dist");
 if (existsSync(dist)) await app.register(fastifyStatic, { root: dist, prefix: "/", decorateReply: false });
 
-await app.listen({ port: 3001, host: "127.0.0.1" });
-console.log("API em http://localhost:3001");
+const porta = Number(process.env.PORT ?? 3001);
+await app.listen({ port: porta, host: process.env.HOST ?? "127.0.0.1" });
+console.log(`API em http://localhost:${porta}`);

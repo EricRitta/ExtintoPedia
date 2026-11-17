@@ -10,9 +10,27 @@ services:
       - "127.0.0.1:5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # Volume vazio (1ª subida ou `down -v`): o Postgres restaura o backup sozinho.
+      - ./db/backup/extintopedia.sql.gz:/docker-entrypoint-initdb.d/01-extintopedia.sql.gz:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U extinto -d extintopedia"]
+      # -h 127.0.0.1: o servidor temporário da restauração só escuta no socket,
+      # então só fica "healthy" depois que o banco definitivo está no ar.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U extinto -d extintopedia"]
       interval: 5s
-      retries: 10
+      retries: 20
+
+  app:
+    build: ./app
+    container_name: extintopedia-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+    ports:
+      - "127.0.0.1:5173:3001"
+    volumes:
+      - ./data:/srv/data   # imagens e mapas (a API grava mapas aqui sob demanda)
 volumes:
   pgdata:
