@@ -3,6 +3,10 @@ import type { FichaExtras, FichaLocal } from "../shared/types.ts";
 import { api } from "./api.ts";
 import { COR_CAT, ICONE_GRUPO } from "./constantes.ts";
 
+// links vêm do banco: só http(s) vira link clicável (nada de javascript:)
+const linkSeguro = (url: string | null | undefined) => (url && /^https?:\/\//i.test(url) ? url : undefined);
+const doiSeguro = (doi: string) => (/^10\.\d{4,9}\/\S+$/.test(doi) ? `https://doi.org/${encodeURI(doi)}` : undefined);
+
 const sn = (v: boolean | null) => (v === null ? "—" : v ? "Sim" : "Não");
 
 /** "11 - Clima" / "11.2 - Secas" (linhas repetidas do CSV) -> grupos {titulo, filhos} */
@@ -52,7 +56,7 @@ export function Ficha({ id, onFechar }: { id: number; onFechar: () => void }) {
             <header className="f-topo">
               <div className="f-foto">
                 {f.imagem ? <img src={f.imagem.media} alt={f.nome} /> : <div className="f-semfoto">{ICONE_GRUPO[f.grupo] ?? "🐾"}<small>Sem foto disponível</small></div>}
-                {credito && <small className="f-credito">{f.imagem?.origem ? <a href={f.imagem.origem} target="_blank" rel="noreferrer">{credito}</a> : credito}</small>}
+                {credito && <small className="f-credito">{linkSeguro(f.imagem?.origem) ? <a href={linkSeguro(f.imagem?.origem)} target="_blank" rel="noreferrer">{credito}</a> : credito}</small>}
               </div>
               <div className="f-ident">
                 <h2><em>{f.cientifico}</em></h2>
@@ -70,7 +74,7 @@ export function Ficha({ id, onFechar }: { id: number; onFechar: () => void }) {
                   <dt>Endêmica do Brasil</dt><dd>{sn(f.endemicaBrasil)}</dd>
                   <dt>Migratória</dt><dd>{sn(f.migratoria)}</dd>
                   {f.periodoAvaliacao && <><dt>Avaliação</dt><dd>{f.periodoAvaliacao}</dd></>}
-                  {f.doi && <><dt>DOI</dt><dd><a href={`https://doi.org/${f.doi}`} target="_blank" rel="noreferrer">{f.doi}</a></dd></>}
+                  {f.doi && <><dt>DOI</dt><dd>{doiSeguro(f.doi) ? <a href={doiSeguro(f.doi)} target="_blank" rel="noreferrer">{f.doi}</a> : f.doi}</dd></>}
                 </dl>
               </div>
             </header>

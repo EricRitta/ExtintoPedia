@@ -14,16 +14,45 @@ async function json(url: string): Promise<any> {
 const binomial = (html: string) => (/<i>(.*?)<\/i>/.exec(html)?.[1] ?? html.replace(/<[^>]+>/g, "")).replace(/&nbsp;| /g, " ").trim();
 export const slug = (n: string) => n.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 
+const HOST_SALVE = "salve.icmbio.gov.br";
+const MAX_MAPA = 5 * 1024 * 1024;
+
+// só https no domínio da SALVE: a URL vem da resposta da API, não é confiável por si só
+function urlDaSalve(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && (u.hostname === HOST_SALVE || u.hostname.endsWith(`.${HOST_SALVE}`));
+  } catch {
+    return false;
+  }
+}
+
+/** Lê o corpo aos poucos e desiste se passar do limite (em vez de carregar tudo em memória). */
+async function lerLimitado(r: Response, max: number): Promise<Buffer | null> {
+  if (Number(r.headers.get("content-length") ?? 0) > max || !r.body) return null;
+  const partes: Uint8Array[] = [];
+  let total = 0;
+  for await (const parte of r.body) {
+    total += parte.length;
+    if (total > max) return null;
+    partes.push(parte);
+  }
+  return Buffer.concat(partes);
+}
+
 /** Baixa o mapa de distribuição (o id do anexo expira no dia, então guardamos o arquivo). */
 async function baixaMapa(url: string, nome: string, dirMapas: string): Promise<string | null> {
+  if (!urlDaSalve(url)) return null;
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+    const r = await fetch(url, { signal: AbortSignal.timeout(30_000), redirect: "manual" }); // redirecionamento poderia sair do domínio
     const tipo = r.headers.get("content-type") ?? "";
     if (!r.ok || !tipo.startsWith("image/")) return null;
+    const corpo = await lerLimitado(r, MAX_MAPA);
+    if (!corpo) return null;
     const ext = tipo.includes("png") ? "png" : tipo.includes("gif") ? "gif" : "jpg";
     await mkdir(dirMapas, { recursive: true });
     const arq = `${slug(nome)}.${ext}`;
-    await writeFile(path.join(dirMapas, arq), Buffer.from(await r.arrayBuffer()));
+    await writeFile(path.join(dirMapas, arq), corpo);
     return `/mapas/${arq}`;
   } catch {
     return null;

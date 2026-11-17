@@ -55,6 +55,17 @@ async function destaque(uf: string, biomaId: number): Promise<EspecieCard | null
 // ---- API ---------------------------------------------------------------------------------------
 const app = Fastify();
 
+// validação de entrada (entrada inválida vira 400 antes de chegar ao banco)
+const PARAM_ID = { type: "object", properties: { id: { type: "integer", minimum: 1 } }, required: ["id"] };
+const PARAM_UF = { type: "string", pattern: "^[A-Za-z]{2}$" };
+
+// nunca devolve mensagem de erro do banco ao cliente; o detalhe fica só no log do servidor
+app.setErrorHandler((err: any, _req, rep) => {
+  if (err.statusCode && err.statusCode < 500) return rep.code(err.statusCode).send({ erro: err.message });
+  console.error(err);
+  return rep.code(500).send({ erro: "erro interno" });
+});
+
 app.get("/api/estados", async (): Promise<EstadoResumo[]> => {
   const estados = await sql`SELECT sigla, nome, regiao FROM estado ORDER BY nome`;
   const cont = await sql`
@@ -77,7 +88,7 @@ app.get("/api/brasil", async (): Promise<BrasilResumo> => {
   return { total: soma(pc), ameacadas: pc.CR + pc.EN + pc.VU, porCategoria: pc };
 });
 
-app.get<{ Params: { uf: string } }>("/api/estados/:uf", async (req, rep): Promise<EstadoDetalhe | void> => {
+app.get<{ Params: { uf: string } }>("/api/estados/:uf", { schema: { params: { type: "object", properties: { uf: PARAM_UF }, required: ["uf"] } } }, async (req, rep): Promise<EstadoDetalhe | void> => {
   const uf = req.params.uf.toUpperCase();
   const [e] = await sql`SELECT sigla, nome, regiao FROM estado WHERE sigla = ${uf}`;
   if (!e) return rep.code(404).send({ erro: "estado não encontrado" });
@@ -104,14 +115,32 @@ app.get<{ Params: { uf: string } }>("/api/estados/:uf", async (req, rep): Promis
   return { uf, nome: e.nome, regiao: e.regiao, total: soma(porCat), ameacadas: porCat.CR + porCat.EN + porCat.VU, porCategoria: porCat, porGrupo, biomas };
 });
 
-app.get<{ Params: { uf: string; id: string } }>("/api/estados/:uf/biomas/:id/destaque", async (req) =>
-  destaque(req.params.uf.toUpperCase(), Number(req.params.id)));
+app.get<{ Params: { uf: string; id: string } }>("/api/estados/:uf/biomas/:id/destaque",
+  { schema: { params: { type: "object", properties: { uf: PARAM_UF, id: { type: "integer", minimum: 1 } }, required: ["uf", "id"] } } },
+  async (req) => destaque(req.params.uf.toUpperCase(), Number(req.params.id)));
 
 // Lista de espécies: Brasil (sem uf), estado (uf) ou bioma de um estado (uf + bioma). Cada espécie aparece uma vez.
 app.get<{ Querystring: { uf?: string; bioma?: string; categoria?: string; grupo?: string; q?: string } }>(
   "/api/especies",
+  {
+    schema: {
+      querystring: {
+        type: "object",
+        properties: {
+          uf: PARAM_UF,
+          bioma: { type: "integer", minimum: 1 },
+          categoria: { enum: CATS },
+          grupo: { type: "string", maxLength: 40 },
+          q: { type: "string", maxLength: 100 },
+        },
+      },
+    },
+  },
   async (req) => {
     const { uf, bioma, categoria, grupo, q } = req.query;
+    // % e _ digitados pelo usuário valem como texto, não como curinga do ILIKE
+    // (se passar das ~1.393 para ~16 mil espécies: índice pg_trgm (GIN) em nome_comum e nome_cientifico)
+    const busca = q ? "%" + q.replace(/[\\%_]/g, "\\$&") + "%" : "";
     const escopo = uf && bioma
       ? sql`AND s.id IN (SELECT especie_id FROM especie_estado_bioma WHERE estado = ${uf.toUpperCase()} AND bioma_id = ${Number(bioma)})`
       : uf
@@ -122,14 +151,14 @@ app.get<{ Querystring: { uf?: string; bioma?: string; categoria?: string; grupo?
       WHERE true ${escopo}
         ${categoria ? sql`AND s.categoria = ${categoria}` : sql``}
         ${grupo ? sql`AND g.nome = ${grupo}` : sql``}
-        ${q ? sql`AND (s.nome_comum ILIKE ${"%" + q + "%"} OR s.nome_cientifico ILIKE ${"%" + q + "%"})` : sql``}
+        ${q ? sql`AND (s.nome_comum ILIKE ${busca} OR s.nome_cientifico ILIKE ${busca})` : sql``}
       ORDER BY (i.especie_id IS NULL), c.ordem, s.nome_cientifico`;
     return rows.map(card);
   });
 
 // ---- ficha -------------------------------------------------------------------------------------
 // camada 1: dados locais (instantâneo)
-app.get<{ Params: { id: string } }>("/api/especies/:id", async (req, rep): Promise<FichaLocal | void> => {
+app.get<{ Params: { id: string } }>("/api/especies/:id", { schema: { params: PARAM_ID } }, async (req, rep): Promise<FichaLocal | void> => {
   const [r] = await sql`
     SELECT s.*, c.nome AS categoria_nome, g.nome AS grupo,
            i.fonte, i.autor AS img_autor, i.licenca, i.url_origem, i.arquivo_media, i.arquivo_thumb,
@@ -155,7 +184,7 @@ app.get<{ Params: { id: string } }>("/api/especies/:id", async (req, rep): Promi
 const dirMapas = path.join(raiz, "data/mapas");
 mkdirSync(dirMapas, { recursive: true });
 const emAndamento = new Map<string, Promise<FichaExtras>>(); // evita duas buscas simultâneas da mesma espécie
-app.get<{ Params: { id: string } }>("/api/especies/:id/extras", async (req, rep): Promise<FichaExtras | void> => {
+app.get<{ Params: { id: string } }>("/api/especies/:id/extras", { schema: { params: PARAM_ID } }, async (req, rep): Promise<FichaExtras | void> => {
   const [e] = await sql`SELECT nome_cientifico FROM especie WHERE id = ${Number(req.params.id)}`;
   if (!e) return rep.code(404).send({ erro: "espécie não encontrada" });
   const nome: string = e.nome_cientifico;
