@@ -21,3 +21,6 @@ data/geo/*.zip
 .env
 .env.*
 .DS_Store
+
+# capturas de tela
+prints/
